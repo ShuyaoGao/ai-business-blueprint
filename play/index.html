@@ -96,7 +96,6 @@
       <svg id="canvas" tabindex="0" aria-label="业务蓝图画布"><g id="world"></g></svg>
       <div id="zoom-badge">100%</div>
       <div id="connect-hint" hidden></div>
-      <div id="watch-caption" aria-live="polite"></div>
     </div>
 
     <div id="dock">
@@ -112,6 +111,7 @@
           <span id="pl-count" class="hint">0 / 0</span>
           <span class="prog"><span id="pl-bar"></span></span>
         </div>
+        <div id="watch-say" aria-live="polite"></div>
       </div>
       <div class="dockpane" id="dock-draw">
         <p class="howto"><b>怎么画：</b>点上面的方框按钮添加（选中一个环节时加在环节里），也可以把按钮直接拖到画布上；拖方框到环节里 = 变成它的小步骤；从方框边上的小圆点拖到另一个方框 = 连线（或点「连线」再先后点两个方框）；滚轮缩放，拖空白处平移。</p>
@@ -183,6 +183,9 @@
 <script src="js/store.js"></script>
 <script src="js/canvas.js"></script>
 <script src="js/panels.js"></script>
+<script src="js/watch.js"></script>
+<script src="js/practice.js"></script>
+<script src="js/selftest.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

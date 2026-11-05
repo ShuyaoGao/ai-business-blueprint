@@ -79,7 +79,7 @@
   // ---------------- 选择、连线 ----------------
   function select(sel, silent) {
     S.sel = sel;
-    if (sel && S.tab !== 'props' && S.tab !== 'tasks' && !isPhone()) S.tab = 'props';
+    if (sel && S.tab !== 'props' && !isPhone()) S.tab = 'props';
     refreshPanel(); updateButtons(); canvas.draw();
   }
   function setConnect(c) {
@@ -124,7 +124,16 @@
         if (st) { n.parent = st.id; st.collapsed = false; where = st.name; }
         return;
       }
-      var target = null, s = S.sel && S.sel.kind === 'node' && M.get(d, S.sel.id);
+      if (type === 'stage') {
+        // 新环节排在已有顶层环节的右边，形成一行流程；要嵌套就把它拖进别的环节
+        var tops = d.nodes.filter(function (m) { return m.type === 'stage' && !m.parent && m.id !== n.id; });
+        if (tops.length) {
+          var right = -Infinity, top = Infinity;
+          tops.forEach(function (m) { var r = M.rectOf(m); right = Math.max(right, r.x + r.w); top = Math.min(top, r.y); });
+          M.moveTo(d, n.id, snapV(right + 64), snapV(top)); return;
+        }
+      }
+      var target = null, s = type !== 'stage' && S.sel && S.sel.kind === 'node' && M.get(d, S.sel.id);
       if (s) target = s.type === 'stage' ? s : (s.parent ? M.get(d, s.parent) : null);
       if (target) { M.placeInside(d, target.id, n); where = target.name; return; }
       var c = canvas.center(), x = snapV(c.x - n.w / 2), y = snapV(c.y - n.h / 2), i = 0;
@@ -212,7 +221,7 @@
       download(new Blob([md], { type: 'text/markdown;charset=utf-8' }), fname('.md')); toast('已导出 Markdown 清单'); note('markdown');
     },
     'copy-sample': function () {
-      var d = M.clone(cur()); d.title = d.title.replace(/（虚构示例）/, '') + '（副本）';
+      var d = root.ABB.Watch ? root.ABB.Watch.fullDoc() : M.clone(cur()); d.title = d.title.replace(/（虚构示例）/, '') + '（虚构示例副本）';
       newDraw(d, '示例已复制到「我来画」，可以随便改了');
     },
     'fit': function () { canvas.fit(); },
@@ -411,7 +420,7 @@
     buildAddButtons(); P.legend($('help-legend')); footer(); bind();
     loadDraw(Store.getCur());
     if (root.ABB.Watch) root.ABB.Watch.init({ S: S, canvas: canvas, refresh: refresh, setTab: setTab, toast: toast, locate: locate, cur: cur, isPhone: isPhone, openSheet: openSheet, closeSheet: closeSheet, helpOpen: function () { return !$('help').hidden; } });
-    if (root.ABB.Practice) root.ABB.Practice.init({ S: S, toast: toast, refresh: refreshPanel, cur: cur, setTab: setTab });
+    if (root.ABB.Practice) root.ABB.Practice.init({ S: S, toast: toast, refresh: refreshPanel, cur: cur, setTab: setTab, canvas: function () { return canvas; } });
     var m = params.mode || (root.ABB.Watch ? 'watch' : 'draw');
     if (['watch', 'draw', 'practice'].indexOf(m) < 0) m = 'draw';
     var firstVisit = !Store.get('abb.helpSeen') && !params.selftest && !params.nohelp;

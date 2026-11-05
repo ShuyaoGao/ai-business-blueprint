@@ -166,7 +166,7 @@
     out.push('<path class="ln" d="' + dpath + '" fill="none" stroke="' + col + '" stroke-width="' + sw + '"' + (e.kind === 'data' ? ' stroke-dasharray="7 5"' : '') + '/>');
     out.push('<path d="M' + f1(g.p3[0]) + ' ' + f1(g.p3[1]) + 'L' + f1(bx - ty * W) + ' ' + f1(by + tx * W) + 'L' + f1(bx + ty * W) + ' ' + f1(by - tx * W) + 'Z" fill="' + col + '"/>');
     var label = (e.label || '') + (e.masked ? (e.label ? '（已脱敏）' : '已脱敏') : '');
-    if (label) {
+    if (label && Math.hypot(g.p3[0] - g.p0[0], g.p3[1] - g.p0[1]) > 70) {
       var lw = Math.min(160, o.measure(label, 11.5) + 12), lines = wrap(label, 148, 11.5, o.measure, 1);
       out.push('<rect x="' + f1(g.mid[0] - lw / 2) + '" y="' + f1(g.mid[1] - 10) + '" width="' + f1(lw) + '" height="19" rx="5" fill="' + pal.bg + '" stroke="' + col + '" stroke-width="1" opacity=".95"/>');
       out.push('<text x="' + f1(g.mid[0]) + '" y="' + f1(g.mid[1] + 4) + '" font-size="11.5" text-anchor="middle" fill="' + (risk ? col : pal.muted) + '">' + esc(lines[0] || '') + '</text>');
