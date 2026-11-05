@@ -194,7 +194,8 @@
     fr.onerror = function () { toast('读取文件失败'); };
     fr.readAsText(file, 'utf-8');
   }
-  function extraFor(doc) { return { risks: A() ? A().risks(doc).map : null, visible: S.mode === 'watch' && root.ABB.Watch ? root.ABB.Watch.extra().visible : null }; }
+  function visibleNow() { return S.mode === 'watch' && root.ABB.Watch ? root.ABB.Watch.extra().visible || null : null; }
+  function extraFor(doc) { return { risks: A() ? A().risks(doc, visibleNow()).map : null, visible: visibleNow() }; }
   var CMDS = {
     'new': function () { newDraw(null, '新建了一份空白蓝图'); },
     'open': function () { if (readOnly()) return; $('file-open').value = ''; $('file-open').click(); },
@@ -235,7 +236,7 @@
     else body.appendChild(P.el('p', { class: 'hint pad', text: '这一栏在下一段加入。' }));
     if (keep) { var f = body.querySelector('[data-key="' + keep + '"]'); if (f && f.focus) f.focus(); }
     var rb = $('risk-badge');
-    if (rb && A()) { var rk = A().risks(cur()); rb.textContent = rk.red ? rk.red : ''; rb.className = rk.red ? 'badge red' : ''; }
+    if (rb && A()) { var rk = A().risks(cur(), visibleNow()); rb.textContent = rk.red ? rk.red : ''; rb.className = rk.red ? 'badge red' : ''; }
   }
   function setTab(t) { S.tab = t; refreshPanel(); }
   function openSheet(t) { if (t) S.tab = t; document.body.classList.add('sheet-open'); refreshPanel(); }
@@ -291,7 +292,7 @@
     connect: function () { return S.connect; }, setConnect: setConnect, snap: function () { return $('ck-snap').checked; },
     extra: function () {
       var d = cur(), w = S.mode === 'watch' && root.ABB.Watch ? root.ABB.Watch.extra() : {};
-      return { risks: A() ? A().risks(d).map : null, visible: w.visible || null, pop: w.pop || null, flash: S.flash || w.flash || null };
+      return { risks: A() ? A().risks(d, w.visible || null).map : null, visible: w.visible || null, pop: w.pop || null, flash: S.flash || w.flash || null };
     },
     onOpen: function (id) {
       if (isPhone()) return openSheet('props');
@@ -306,7 +307,7 @@
   // 面板用的 host
   P.host = {
     doc: cur, readOnly: readOnly, sel: function () { return S.sel; }, select: function (s) { select(s); if (s) canvas.reveal(s.kind === 'node' ? s.id : M.getEdge(cur(), s.id).from); },
-    edit: edit, commit: commit, locate: locate, cmd: cmd, toggle: toggleStage, toast: toast, mode: function () { return S.mode; }
+    edit: edit, commit: commit, locate: locate, visible: function () { return visibleNow(); }, cmd: cmd, toggle: toggleStage, toast: toast, mode: function () { return S.mode; }
   };
 
   // ---------------- 工具条 ----------------

@@ -177,6 +177,131 @@
     wrap.appendChild(el('p', { class: 'hint', text: '颜色和形状：蓝色大框 = 业务环节；琥珀色 = 人工；紫色双边框 = AI；绿色圆柱 = 数据；灰色虚线框 = 外部系统。数据下面两个小标签是「存放位置」和「敏感等级」；AI 右上角的小标签是它在四格图里的位置。' }));
   }
 
+
+  // ================= 统计 =================
+  function tile(big, small, cls) { return el('div', { class: 'tile ' + (cls || '') }, [el('b', { text: big }), el('span', { text: small })]); }
+  function locBtn(id, kids, cls, title) { return el('button', { type: 'button', class: 'rowbtn ' + (cls || ''), title: title || '在画布上找到它', onclick: function () { P.host.locate(id); } }, kids); }
+
+  P.stats = function (body) {
+    var A = root.ABB.Analysis, doc = P.host.doc(), vis = P.host.visible(), st = A.stats(doc, vis), rk = A.risks(doc, vis);
+    body.appendChild(el('div', { class: 'tiles' }, [
+      tile(st.stagesWithAI + ' / ' + st.stages.length, '个业务环节用了 AI'),
+      tile(st.counts.ai + ' : ' + st.counts.human, 'AI 步骤 : 人工步骤'),
+      tile(String(rk.red), '条标红' + (rk.yellow ? '，' + rk.yellow + ' 条标黄' : ''), rk.red ? 'bad' : rk.yellow ? 'warn' : 'good')
+    ]));
+
+    var sec = el('section', { class: 'sec' }, [el('h4', { text: '风险提醒：敏感数据流向了哪里' })]);
+    if (!rk.list.length) sec.appendChild(el('p', { class: 'hint', text: '没有发现敏感或机密数据流向公有云。（规则：敏感 / 机密数据存在公有云，或直接连到运行在公有云的 AI / 外部系统，就标红。）' }));
+    rk.list.forEach(function (r) {
+      sec.appendChild(locBtn(r.edge || r.node, [el('span', { class: 'rk ' + r.level, text: r.level === 'red' ? '红' : '黄' }), el('span', {}, [r.text, el('br'), el('small', { text: '建议：' + r.fix })])], 'risk ' + r.level));
+    });
+    body.appendChild(sec);
+
+    sec = el('section', { class: 'sec' }, [el('h4', { text: '每个环节用了什么 AI' })]);
+    if (!st.stages.length) sec.appendChild(el('p', { class: 'hint', text: '还没有业务环节。先建几个蓝色大框，把步骤放进去。' }));
+    st.stages.forEach(function (s) {
+      var chips = Object.keys(s.types).map(function (k) { return el('span', { class: 'chip', text: (k ? C.AI[k].name : '未选类型') + (s.types[k] > 1 ? ' ×' + s.types[k] : '') }); });
+      sec.appendChild(locBtn(s.id, [el('span', { class: 'sname', style: 'padding-left:' + s.depth * 14 + 'px', text: (s.ai ? '✓ ' : '○ ') + s.name }),
+        el('span', { class: 'chips' }, chips.length ? chips : [el('span', { class: 'hint', text: s.human ? '只有人工步骤' : '还是空的' })])], 'stage' + (s.ai ? ' yes' : '')));
+    });
+    body.appendChild(sec);
+
+    sec = el('section', { class: 'sec' }, [el('h4', { text: '各类 AI 用了几次' })]);
+    var max = 1; C.AI_ORDER.forEach(function (k) { max = Math.max(max, st.aiByType[k] || 0); });
+    var bars = el('div', { class: 'bars', role: 'table', 'aria-label': '各类 AI 用了几次' });
+    var groups = C.AI_GROUPS.slice();
+    groups.forEach(function (g) {
+      g.items.forEach(function (it) {
+        var v = st.aiByType[it.id] || 0; if (it.id === 'other' && !v) return;
+        bars.appendChild(el('div', { class: 'bar' + (v ? '' : ' zero'), role: 'row', title: it.name + '：' + v + ' 次 · ' + it.good }, [
+          el('span', { class: 'bl', role: 'cell', text: it.name }), el('span', { class: 'bt', role: 'cell' }, [el('i', { style: 'width:' + (v / max * 100) + '%' })]), el('span', { class: 'bv', role: 'cell', text: String(v) })]));
+      });
+    });
+    if (st.untyped) bars.appendChild(el('div', { class: 'bar', role: 'row' }, [el('span', { class: 'bl', text: '未选类型' }), el('span', { class: 'bt' }, [el('i', { class: 'muted', style: 'width:' + Math.min(100, st.untyped / max * 100) + '%' })]), el('span', { class: 'bv', text: String(st.untyped) })]));
+    sec.appendChild(bars);
+    sec.appendChild(el('p', { class: 'hint', text: '灰色的是还没用到的 AI 类型。把鼠标停在一行上看它擅长什么。' }));
+    body.appendChild(sec);
+
+    sec = el('section', { class: 'sec' }, [el('h4', { text: 'AI 运行在哪' })]);
+    sec.appendChild(el('div', { class: 'locs' }, C.LOC_ORDER.map(function (l) { return el('span', { class: 'loc-' + l }, [el('b', { text: String(st.aiLoc[l]) }), ' ' + (l === 'public' ? '公有云 API' : C.LOCS[l].name)]); })));
+    body.appendChild(sec);
+
+    sec = el('section', { class: 'sec' }, [el('h4', { text: '数据放在哪（按敏感等级）' })]);
+    var tb = el('table', { class: 'dtable' }), tr = el('tr', {}, [el('th', { text: '' })]);
+    C.LEVEL_ORDER.forEach(function (v) { tr.appendChild(el('th', { text: C.LEVELS[v].name })); }); tb.appendChild(tr);
+    C.LOC_ORDER.forEach(function (l) {
+      var r = el('tr', {}, [el('th', { text: C.LOCS[l].name })]);
+      C.LEVEL_ORDER.forEach(function (v) {
+        var n = st.data[l][v], bad = n && l === 'public' && (v === 'sensitive' || v === 'secret'), warn = n && l === 'private' && v === 'secret';
+        r.appendChild(el('td', { class: bad ? 'bad' : warn ? 'warn' : n ? 'has' : '', text: n ? String(n) : '·' }));
+      });
+      tb.appendChild(r);
+    });
+    sec.appendChild(tb);
+    body.appendChild(sec);
+  };
+
+  // ================= 四格图 =================
+  var QX = { low: 0.25, mid: 0.625, high: 0.875 }, QY = { high: 0.14, mid: 0.36, low: 0.75 };
+  P.quad = function (body) {
+    var A = root.ABB.Analysis, doc = P.host.doc(), vis = P.host.visible(), q = A.quad(doc, vis), pal = root.ABB.App ? root.ABB.App.canvas().pal() : C.PALETTES.light;
+    var W = 360, H = 300, L = 30, T = 8, PW = W - L - 6, PH = H - T - 30, svg = [];
+    svg.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="quadsvg" role="img" aria-label="AI 价值与难度四格图">');
+    [['now', 0, 0], ['plan', 1, 0], ['easy', 0, 1], ['skip', 1, 1]].forEach(function (c) {
+      var x = L + c[1] * PW / 2, y = T + c[2] * PH / 2, col = R.quadColor(c[0], pal);
+      svg.push('<rect x="' + x + '" y="' + y + '" width="' + (PW / 2 - 2) + '" height="' + (PH / 2 - 2) + '" rx="6" fill="' + col + '" fill-opacity=".10" stroke="' + col + '" stroke-opacity=".35"/>');
+      svg.push('<text x="' + (x + 8) + '" y="' + (y + 18) + '" font-size="13" font-weight="bold" fill="' + col + '">' + C.QUADS[c[0]].name + '</text>');
+      svg.push('<text x="' + (x + PW / 2 - 10) + '" y="' + (y + PH / 2 - 10) + '" font-size="10.5" text-anchor="end" fill="' + pal.muted + '">' + C.QUADS[c[0]].tip + '</text>');
+    });
+    svg.push('<text x="' + (L + PW / 2) + '" y="' + (H - 6) + '" font-size="12" text-anchor="middle" fill="' + pal.muted + '">落地难度 → （左：低 ｜ 右：中、高）</text>');
+    svg.push('<text transform="translate(14 ' + (T + PH / 2) + ') rotate(-90)" font-size="12" text-anchor="middle" fill="' + pal.muted + '">业务价值 ↑（上：高、中｜下：低）</text>');
+    var cells = {};
+    ['now', 'plan', 'easy', 'skip'].forEach(function (k) { q[k].forEach(function (p) { var key = p.value + '|' + p.effort; (cells[key] = cells[key] || []).push(p); }); });
+    Object.keys(cells).forEach(function (key) {
+      var ps = cells[key], v = key.split('|')[0], e = key.split('|')[1], cx = L + QX[e] * PW, cy = T + QY[v] * PH, per = Math.min(ps.length, 5);
+      ps.forEach(function (p, i) {
+        var col = i % per, row = Math.floor(i / per), x = cx + (col - (per - 1) / 2) * 22, y = cy + row * 22 + (v === 'high' ? 6 : 0);
+        var qc = R.quadColor(C.quadOf(p.value, p.effort), pal);
+        svg.push('<g class="qpt" data-id="' + p.id + '" tabindex="0"><title>' + R.esc(p.num + '. ' + p.name + '（价值' + C.HML[p.value] + '、难度' + C.HML[p.effort] + '）') + '</title>' +
+          '<circle cx="' + x + '" cy="' + y + '" r="14" fill="transparent"/><circle cx="' + x + '" cy="' + y + '" r="10" fill="' + qc + '" stroke="' + pal.bg + '" stroke-width="2"/>' +
+          '<text x="' + x + '" y="' + (y + 4) + '" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#fff">' + p.num + '</text></g>');
+      });
+    });
+    svg.push('</svg>');
+    var box = el('div', { class: 'quadwrap', html: svg.join('') });
+    box.querySelectorAll('.qpt').forEach(function (g) {
+      g.addEventListener('click', function () { P.host.locate(g.getAttribute('data-id')); });
+      g.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') P.host.locate(g.getAttribute('data-id')); });
+    });
+    body.appendChild(el('p', { class: 'hint', text: '每个点是一个 AI 方框（编号对应下面的清单），点一下在画布上找到它。「中」算进高的一边：价值中 = 值得做，难度中 = 要规划。' }));
+    body.appendChild(box);
+    ['now', 'plan', 'easy', 'skip'].forEach(function (k) {
+      var sec = el('section', { class: 'sec qlist q-' + k }, [el('h4', {}, [el('span', { class: 'qdot' }), C.QUADS[k].name + '（' + q[k].length + '）', el('small', { text: ' ' + C.QUADS[k].tip })])]);
+      if (!q[k].length) sec.appendChild(el('p', { class: 'hint', text: '—' }));
+      q[k].forEach(function (p) { sec.appendChild(locBtn(p.id, [el('span', { class: 'num', text: String(p.num) }), p.name, el('small', { text: '　价值' + C.HML[p.value] + ' · 难度' + C.HML[p.effort] })])); });
+      body.appendChild(sec);
+    });
+    if (q.unrated.length) {
+      var sec = el('section', { class: 'sec' }, [el('h4', { text: '还没打分（' + q.unrated.length + '）' }), el('p', { class: 'hint', text: '点一个，在属性里选「业务价值」和「落地难度」。' })]);
+      q.unrated.forEach(function (p) { sec.appendChild(locBtn(p.id, [p.name])); });
+      body.appendChild(sec);
+    }
+  };
+
+  // ================= Markdown 清单 =================
+  P.list = function (body) {
+    var md = root.ABB.Analysis.markdown(P.host.doc(), P.host.visible());
+    var ta = el('textarea', { class: 'mdview', readonly: true, rows: 20, 'aria-label': 'Markdown 清单' }); ta.value = md;
+    body.appendChild(el('div', { class: 'row' }, [
+      el('button', { class: 'mini primary', onclick: function () { P.host.cmd('md'); } }, ['下载 .md']),
+      el('button', { class: 'mini', onclick: function () {
+        function fallback() { ta.focus(); ta.select(); try { document.execCommand('copy'); P.host.toast('已复制'); } catch (e) { P.host.toast('请手动全选复制'); } }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(md).then(function () { P.host.toast('已复制，可以粘贴到文档里'); }, fallback); else fallback();
+      } }, ['复制全部'])]));
+    body.appendChild(el('p', { class: 'hint', text: '主表：环节 → 步骤 → 谁来做（人 / 哪类 AI）→ 输入 → 输出 → 用到的数据（位置·等级）→ 业务价值 → 落地难度。后面附四格图、数据清单和风险提醒。' }));
+    body.appendChild(ta);
+  };
+
   P.legend = function (box) {
     C.TYPE_ORDER.forEach(function (k) { box.appendChild(el('div', { class: 'lg' }, [el('span', { html: iconSvg(k) }), el('b', { text: C.TYPES[k].name }), el('span', { class: 'hint', text: C.TYPES[k].tip })])); });
   };
