@@ -1,0 +1,885 @@
+{
+  "tool": "tools/browser_check.js",
+  "browser": "Chromium 153.0.8010.12（Playwright，无头）",
+  "date": "2026-11-05",
+  "selftest": {
+    "ok": true,
+    "checks": 33,
+    "failed": []
+  },
+  "sizes": [
+    {
+      "size": "手机 390×844",
+      "scheme": "light",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "0.91 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "手机 390×844",
+      "scheme": "dark",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "0.91 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "手机 360×780",
+      "scheme": "light",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "0.84 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "手机 360×780",
+      "scheme": "dark",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "0.84 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "平板 768×1024",
+      "scheme": "light",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "平板 768×1024",
+      "scheme": "dark",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "全屏面板：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ 菜单能打开",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "☰ 菜单：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "☰ → 四格图打开全屏面板",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "电脑 1366×768",
+      "scheme": "light",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "电脑 1366×768",
+      "scheme": "dark",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "电脑 1920×1080",
+      "scheme": "light",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "size": "电脑 1920×1080",
+      "scheme": "dark",
+      "checks": [
+        {
+          "name": "默认打开观看模式并自动播放",
+          "ok": true,
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+        },
+        {
+          "name": "观看：没有横向溢出",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "观看：「下一步」按钮",
+          "ok": true,
+          "detail": "2"
+        },
+        {
+          "name": "加方框：选中环节时放进环节里",
+          "ok": true,
+          "detail": "4 个，环节里 2"
+        },
+        {
+          "name": "我来画：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "连线模式：先后点两个方框连出一条线",
+          "ok": true,
+          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+        },
+        {
+          "name": "拖动：把方框拖进环节变成小步骤",
+          "ok": true,
+          "detail": "n1"
+        },
+        {
+          "name": "双指缩放",
+          "ok": true,
+          "detail": "1.10 → 3.00"
+        },
+        {
+          "name": "属性：选 AI 类型、打价值分",
+          "ok": true,
+          "detail": "llm / high"
+        },
+        {
+          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "ok": true,
+          "detail": "0"
+        },
+        {
+          "name": "练习：没有横向溢出、整页不滚动",
+          "ok": true,
+          "detail": "{\"x\":0,\"y\":0}"
+        },
+        {
+          "name": "练习：9 项任务",
+          "ok": true,
+          "detail": "9"
+        },
+        {
+          "name": "没有 JS 报错",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    }
+  ],
+  "shots": [
+    "01-watch-1920x1080.png",
+    "02-draw-1920x1080-dark.png",
+    "03-stats-1366x768.png",
+    "04-quad-1366x768-dark.png",
+    "05-practice-1366x768.png",
+    "06-mobile-watch-390x844.png",
+    "07-mobile-draw-390x844-dark.png",
+    "08-mobile-quad-390x844.png",
+    "09-tablet-768x1024.png",
+    "10-tablet-768x1024-dark.png"
+  ],
+  "ok": true
+}

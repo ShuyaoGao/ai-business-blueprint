@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "如果在教学或研究中使用了本项目，请按以下信息引用。If you use this project, please cite it as below."
+title: "ai-business-blueprint: AI 业务拆解画板 (AI Business Blueprint)"
+type: software
+authors:
+  - family-names: Gao
+    given-names: Shuyao
+    email: "gaoshuyao.mk@gmail.com"
+    affiliation: "aSSIST University (Seoul School of Integrated Sciences and Technologies)"
+version: "1.0"
+date-released: "2026-11-05"
+license: MIT
+repository-code: "https://github.com/ShuyaoGao/ai-business-blueprint"
+url: "https://shuyaogao.github.io/ai-business-blueprint/"
+abstract: >-
+  A browser-only teaching tool (AI Teaching Demos) for executives: decompose a business into nested
+  boxes (business stages, human steps, AI capabilities, data stores, external systems) connected by
+  process and data-flow arrows; tag each AI step with one of 12 plain-language AI types, inputs,
+  outputs, deployment location, business value and implementation difficulty; tag data with
+  storage location and sensitivity. One-click statistics, a value/difficulty quadrant, red/yellow
+  alerts for sensitive data flowing to the public cloud, and a Markdown export. Three fictional
+  worked examples with narrated walkthroughs. No libraries, no network; works on desktop and phones.
+keywords:
+  - course-demo
+  - ai-strategy
+  - business-process
+  - data-governance
