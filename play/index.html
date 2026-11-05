@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>AI 业务拆解画板</title>
+<script>
+  /* 收集所有 JS 报错（包括 <script> 加载失败），给自检用。 */
+  window.__errors = [];
+  window.addEventListener("error", function (e) {
+    var t = e.target;
+    if (t && t !== window && (t.src || t.href)) window.__errors.push("load failed: " + (t.src || t.href));
+    else window.__errors.push(String(e.message || e.error || e));
+  }, true);
+  window.addEventListener("unhandledrejection", function (e) { window.__errors.push("promise: " + e.reason); });
+</script>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="m-draw">
+
+<!-- ===================== 顶栏 ===================== -->
+<header id="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true"></span><span id="app-name">AI 业务拆解画板</span><small id="app-tagline">把业务拆成小方框：哪里用 AI、数据放哪</small></div>
+  <nav id="modes" role="tablist" aria-label="模式">
+    <button data-mode="watch" role="tab" title="示例业务自动逐步拆开，每步配一句解说（快捷键 1）">观看</button>
+    <button data-mode="draw" role="tab" title="自己画：拖出方框、连线、填属性（快捷键 2）">我来画</button>
+    <button data-mode="practice" role="tab" title="按任务清单练习，做完自动打勾（快捷键 3）">练习</button>
+  </nav>
+  <span class="spacer"></span>
+  <label class="switch" title="把画布放大、右栏变窄，适合投影（快捷键 B）"><input type="checkbox" id="bigscreen"> 大屏模式</label>
+  <button id="help-btn" class="icon" title="操作说明（H）" aria-label="操作说明">?</button>
+  <button id="exit-btn" class="exit" title="停止所有动画并关闭页面">退出</button>
+  <button id="menu-btn" type="button" aria-label="菜单" aria-expanded="false" aria-controls="menu">☰</button>
+  <div id="menu" role="menu" hidden>
+    <button role="menuitem" type="button" data-panel="stats">统计</button>
+    <button role="menuitem" type="button" data-panel="quad">四格图</button>
+    <button role="menuitem" type="button" data-panel="list">Markdown 清单</button>
+    <button role="menuitem" type="button" data-panel="tasks" class="only-practice">练习任务</button>
+    <div class="sep"></div>
+    <button role="menuitem" type="button" data-cmd="new" class="only-draw">新建空白蓝图</button>
+    <button role="menuitem" type="button" data-cmd="open" class="not-watch">打开 .json</button>
+    <button role="menuitem" type="button" data-cmd="save-json" class="not-watch">下载 .json</button>
+    <button role="menuitem" type="button" data-cmd="png">导出 PNG</button>
+    <button role="menuitem" type="button" data-cmd="md">导出 Markdown 清单</button>
+    <button role="menuitem" type="button" data-cmd="fit">适应窗口</button>
+    <div class="sep"></div>
+    <button role="menuitem" type="button" data-cmd="help">操作说明</button>
+    <button role="menuitem" type="button" data-cmd="exit">退出</button>
+  </div>
+</header>
+
+<!-- ===================== 主区 ===================== -->
+<main id="layout">
+  <section id="leftcol">
+    <div id="toolbar">
+      <span class="grp" id="grp-doc">
+        <select id="doc-select" aria-label="选择蓝图" title="存在这个浏览器里的蓝图"></select>
+        <button class="mini" id="btn-new" title="新建空白蓝图">新建</button>
+        <button class="mini" id="btn-del-doc" title="删除这份蓝图（可先下载 .json 备份）">删除蓝图</button>
+      </span>
+      <span class="grp" id="grp-sample">
+        <label for="sample-select">示例</label>
+        <select id="sample-select" aria-label="示例业务"></select>
+        <span class="fict">虚构示例</span>
+      </span>
+      <span class="grp" id="grp-add" aria-label="添加方框"></span>
+      <span class="grp" id="grp-edit">
+        <button class="mini" id="btn-connect" title="连线：先点起点方框，再点终点方框（电脑上也可以从方框边上的小圆点直接拖）">连线</button>
+        <button class="mini" id="btn-undo" title="撤销（Ctrl+Z）">撤销</button>
+        <button class="mini" id="btn-redo" title="重做（Ctrl+Y）">重做</button>
+        <button class="mini" id="btn-del" title="删除选中的方框或连线（Delete）">删除</button>
+      </span>
+      <span class="grp" id="grp-view">
+        <button class="mini" id="btn-fit" title="适应窗口（F）">适应窗口</button>
+        <button class="mini sq" id="btn-zoom-out" title="缩小" aria-label="缩小">−</button>
+        <button class="mini sq" id="btn-zoom-in" title="放大" aria-label="放大">+</button>
+        <label class="switch sm" title="拖动时吸附网格并对齐别的方框"><input type="checkbox" id="ck-snap" checked> 吸附</label>
+      </span>
+      <span class="grp dd" id="grp-file">
+        <button class="mini" id="btn-file" aria-haspopup="true">文件 ▾</button>
+        <span class="ddmenu" role="menu">
+          <button type="button" data-cmd="open" class="not-watch">打开 .json</button>
+          <button type="button" data-cmd="save-json" class="not-watch">下载 .json</button>
+          <div class="sep not-watch"></div>
+          <button type="button" data-cmd="png">导出 PNG</button>
+          <button type="button" data-cmd="md">导出 Markdown 清单</button>
+          <div class="sep only-watch"></div>
+          <button type="button" data-cmd="copy-sample" class="only-watch">把这个示例复制到「我来画」</button>
+        </span>
+      </span>
+    </div>
+
+    <div id="stage-wrap">
+      <svg id="canvas" tabindex="0" aria-label="业务蓝图画布"><g id="world"></g></svg>
+      <div id="zoom-badge">100%</div>
+      <div id="connect-hint" hidden></div>
+      <div id="watch-caption" aria-live="polite"></div>
+    </div>
+
+    <div id="dock">
+      <div class="dockpane" id="dock-watch">
+        <div class="playctl">
+          <button class="mini primary" id="pl-play">播放</button>
+          <button class="mini" id="pl-prev">上一步</button>
+          <button class="mini" id="pl-next">下一步</button>
+          <button class="mini" id="pl-restart">从头</button>
+          <span class="seg" id="pl-speed" role="group" aria-label="速度">
+            <button data-speed="slow">慢</button><button data-speed="normal" class="on">正常</button><button data-speed="fast">快</button>
+          </span>
+          <span id="pl-count" class="hint">0 / 0</span>
+          <span class="prog"><span id="pl-bar"></span></span>
+        </div>
+      </div>
+      <div class="dockpane" id="dock-draw">
+        <p class="howto"><b>怎么画：</b>点上面的方框按钮添加（选中一个环节时加在环节里），也可以把按钮直接拖到画布上；拖方框到环节里 = 变成它的小步骤；从方框边上的小圆点拖到另一个方框 = 连线（或点「连线」再先后点两个方框）；滚轮缩放，拖空白处平移。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="rightcol">
+    <div id="ptabs" role="tablist">
+      <button data-tab="tasks" class="only-practice">任务 <span id="task-badge"></span></button>
+      <button data-tab="props">属性</button>
+      <button data-tab="stats">统计 <span id="risk-badge"></span></button>
+      <button data-tab="quad">四格图</button>
+      <button data-tab="list">清单</button>
+    </div>
+    <div id="panel-body"></div>
+    <button id="panel-close" type="button">返回画布</button>
+  </section>
+</main>
+
+<!-- 手机底部大按钮 -->
+<div id="mob-bar">
+  <div class="dd up" id="mb-add-dd">
+    <button class="mbtn primary" id="mb-add" type="button"><b>＋</b><span>加方框</span></button>
+    <span class="ddmenu" id="mb-add-menu" role="menu"></span>
+  </div>
+  <button class="mbtn" id="mb-connect" type="button"><b>↗</b><span>连线</span></button>
+  <button class="mbtn" id="mb-props" type="button"><b>✎</b><span>属性</span></button>
+  <button class="mbtn" id="mb-del" type="button"><b>✕</b><span>删除</span></button>
+  <button class="mbtn" id="mb-undo" type="button"><b>↶</b><span>撤销</span></button>
+</div>
+
+<footer id="foot"></footer>
+
+<!-- 操作说明 -->
+<div id="help" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-labelledby="help-title">
+    <div class="help-body">
+      <h2 id="help-title">30 秒上手</h2>
+      <div class="help-cards">
+        <div class="hc"><h3>① 看示例</h3><p>「观看」把一家连锁餐厅、一座工厂、一个客服中心拆成方框，一步一句解说：哪个环节用哪类 AI、数据放哪、哪里有风险。</p></div>
+        <div class="hc"><h3>② 拆自己的业务</h3><p>「我来画」：先建几个<b>业务环节</b>（蓝色大框），再往里放<b>人工步骤</b>、<b>AI 能力</b>；旁边画<b>数据</b>和<b>外部系统</b>，用线连起来。点方框，在右边填属性。</p></div>
+        <div class="hc"><h3>③ 看结果</h3><p>「统计」告诉你多少环节用了 AI、哪些敏感数据流向了公有云（标红）；「四格图」排出先做什么；「清单」导出 Markdown，课后直接写方案。</p></div>
+      </div>
+      <div class="legend" id="help-legend"></div>
+      <div class="keys-list help-kbd">
+        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换模式</span><span><kbd>空格</kbd> 观看：播放 / 暂停</span><span><kbd>Delete</kbd> 删除选中</span>
+        <span><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Y</kbd> 撤销 / 重做</span><span><kbd>方向键</kbd> 微移选中方框</span><span><kbd>F</kbd> 适应窗口</span>
+        <span><kbd>L</kbd> 连线</span><span><kbd>Esc</kbd> 取消连线 / 取消选中</span><span><kbd>H</kbd> 或右上角 <kbd>?</kbd> 再看这页</span>
+      </div>
+      <p class="help-touch-text"><b>触屏：</b>单指拖方框（拖进蓝色大框 = 变成小步骤），单指拖空白处平移，双指缩放；底部「加方框」「连线」「属性」大按钮；右上角 ☰ 里有统计、四格图、清单和文件操作。</p>
+      <p class="help-foot">纯静态网页：不联网、不上传，所有内容只存在你这个浏览器里；要长期保存请「下载 .json」。示例里的公司和数字都是虚构的。</p>
+    </div>
+    <div class="help-actions"><button id="help-close" class="primary big-btn">开始</button></div>
+  </div>
+</div>
+
+<div id="rotate-hint" role="status" hidden><div><b>竖屏体验更佳</b><p>把手机竖过来：上面是画布，下面是大按钮。</p><button id="rot-ok" type="button">仍然横屏继续</button></div></div>
+<div id="exited" hidden><div><b>已停止</b><p>所有动画都停了，可以直接关闭这个标签页。</p><button type="button" onclick="location.reload()">重新打开</button></div></div>
+<div id="toast" role="status"></div>
+<input type="file" id="file-open" accept=".json,application/json" hidden>
+
+<script src="js/credits.js"></script>
+<script src="js/config.js"></script>
+<script src="js/model.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/render.js"></script>
+<script src="js/samples.js"></script>
+<script src="js/store.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/panels.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
