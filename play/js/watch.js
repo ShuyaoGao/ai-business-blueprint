@@ -41,7 +41,16 @@
     $('pl-count').textContent = (k + 1) + ' / ' + steps.length;
     $('pl-bar').style.width = ((k + 1) / steps.length * 100) + '%';
     $('pl-prev').disabled = k === 0; $('pl-next').disabled = k === steps.length - 1;
-    if (refit) W.app.canvas.fit(M.bounds(W.built.doc), 1);
+    if (W.app.isPhone()) {
+      // 手机屏幕窄：镜头跟着这一步新出现的方框走；只换右栏的步骤看全图
+      var focus = new Set(); (st.show || []).forEach(function (key) { focus.add(idOf(key)); });
+      if (S.sel && S.sel.kind === 'node') focus.add(S.sel.id);
+      if (S.sel && S.sel.kind === 'edge') { var e = M.getEdge(doc, S.sel.id); if (e) { focus.add(e.from); focus.add(e.to); } }
+      focus.forEach(function (id) { var n = M.get(doc, id); if (n && n.parent && n.type !== 'data') focus.add(n.parent); });
+      var r = focus.size && (st.show || []).length < 5 ? M.bounds(doc, focus) : null;
+      if (r) { var pad = 30; W.app.canvas.fit({ x: r.x - pad, y: r.y - pad, w: r.w + 2 * pad, h: r.h + 2 * pad }, 1); }
+      else W.app.canvas.fit(M.bounds(W.built.doc), 1);
+    } else if (refit) W.app.canvas.fit(M.bounds(W.built.doc), 1);
     W.app.refresh();
     if (W.playing) schedule();
   }
@@ -80,7 +89,7 @@
     var saved = 0; try { saved = +(root.ABB.Store.get('abb.watchSample') || 0) || 0; } catch (e) { /* */ }
     load(saved);
   };
-  W.enter = function () { go(0, false); setTimeout(function () { W.app.canvas.fit(M.bounds(W.built.doc), 1); if (!W.app.helpOpen()) W.autoStart(); }, 0); };
+  W.enter = function () { go(0, false); setTimeout(function () { if (!W.app.isPhone()) W.app.canvas.fit(M.bounds(W.built.doc), 1); if (!W.app.helpOpen()) W.autoStart(); }, 0); };
   W.leave = function () { stop(); };
   W.autoStart = function () { if (W.app.S.mode === 'watch' && !W.playing && W.step === 0) play(); };
   W.toggle = function () { if (W.playing) stop(); else play(); };

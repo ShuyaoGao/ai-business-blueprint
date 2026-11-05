@@ -17,7 +17,7 @@
 
   function cur() { return S.mode === 'watch' && root.ABB.Watch ? root.ABB.Watch.doc() : S.docs[S.mode]; }
   function readOnly() { return S.mode === 'watch'; }
-  function isPhone() { return root.matchMedia && root.matchMedia('(max-width: 760px)').matches; }
+  function isPhone() { return root.matchMedia && root.matchMedia('(max-width: 900px)').matches; }
 
   // ---------------- 提示 ----------------
   var toastT = 0;

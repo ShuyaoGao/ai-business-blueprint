@@ -1,1 +1,90 @@
-/* 手机竖屏布局：第四段加入。 */
+/* ============================================================================
+   手机竖屏和平板（宽度 ≤ 900px）：一栏布局。
+   我来画 / 练习：一屏不滚动——上面工具条、中间画布、底部一排大按钮；右栏变成全屏面板（属性 / 统计 / 四格图 / 清单）。
+   观看：画布 + 播放控制 + 解说，下面接右栏，整页上下滚动。
+   所有可点区域不小于 44px。
+   ============================================================================ */
+@media (max-width: 900px) {
+  body { overflow-x: hidden; }
+  button, select { min-height: 44px; }
+  button.mini { min-height: 44px; padding: 4px 12px; font-size: 14px; }
+  button.sq { width: 44px; }
+  .seg button, .segbtn button { min-height: 44px; min-width: 48px; padding: 4px 14px; font-size: 14px; }
+  input[type=text], textarea { font-size: 16px; } /* iOS 不自动放大 */
+
+  #topbar { gap: 8px; padding: 0 8px; --top-h: 56px; height: 56px; }
+  .brand small, #topbar .switch, #help-btn, #exit-btn { display: none !important; }
+  .brand #app-name { font-size: 15px; }
+}
+@media (max-width: 480px) {
+  .brand #app-name { display: none; }
+}
+@media (max-width: 900px) {
+  #modes button { padding: 4px 12px; min-height: 44px; }
+  #menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 44px; font-size: 22px; padding: 0; margin-left: auto; }
+  #menu:not([hidden]) { display: block; position: absolute; right: 8px; top: 54px; z-index: 60; min-width: 220px; max-height: calc(100vh - 70px); overflow: auto;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  #menu button { display: block; width: 100%; text-align: left; border: none; background: transparent; min-height: 46px; padding: 8px 14px; border-radius: 8px; }
+  #menu button:hover { background: var(--panel2); }
+
+  #layout { display: flex; flex-direction: column; padding: 6px; gap: 6px; }
+  #leftcol { flex: 1; min-height: 0; border-radius: 10px; }
+  #rightcol { display: none; }
+  #toolbar { padding: 6px; gap: 6px; }
+  #grp-add, #grp-edit, #grp-file, #btn-del-doc, #toolbar .switch.sm, #btn-new { display: none !important; }
+  #doc-select { max-width: 46vw; }
+  #btn-fit { font-size: 13px; padding: 4px 8px; }
+  #toast { bottom: 90px; }
+  #sample-select { max-width: 60vw; }
+  #grp-view { margin-left: auto; flex-wrap: nowrap; }
+  #dock-draw { display: none !important; }
+  #dock { padding: 6px 8px; }
+  #foot { font-size: 10.5px; padding: 4px 8px; }
+  body.m-draw #foot, body.m-practice #foot { display: none; }
+
+  /* 底部大按钮 */
+  body.m-draw #mob-bar, body.m-practice #mob-bar { display: grid; }
+  #mob-bar { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: var(--panel); border-top: 1px solid var(--line); flex: none; }
+  .mbtn { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 2px; font-size: 12.5px; width: 100%; }
+  .mbtn b { font-size: 19px; line-height: 1.1; }
+  .mbtn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  #mb-add-dd { position: relative; }
+  #mb-add-dd .ddmenu { left: 0; right: auto; top: auto; bottom: calc(100% + 6px); min-width: 210px; }
+  #mb-add-dd .ddmenu button { min-height: 48px; font-size: 15px; }
+
+  /* 右栏 = 全屏面板 */
+  body.sheet-open #rightcol { display: flex; position: fixed; left: 0; right: 0; top: 56px; bottom: 0; z-index: 50; border-radius: 0; border: none; }
+  body.sheet-open #panel-close { display: block; flex: none; margin: 6px 8px calc(8px + env(safe-area-inset-bottom)); min-height: 48px; font-weight: bold; background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  #ptabs { padding: 4px 4px 0; }
+  #ptabs button { min-height: 44px; padding: 6px 12px; }
+  #panel-body { padding: 10px 12px 16px; }
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .tile b { font-size: 18px; }
+  .bar { grid-template-columns: 96px 1fr 22px; }
+
+  /* 观看：整页上下滚动，右栏接在下面 */
+  body.m-watch { overflow-y: auto; height: auto; min-height: 100%; }
+  body.m-watch #layout { flex: none; }
+  body.m-watch #leftcol { flex: none; }
+  body.m-watch #stage-wrap { flex: none; height: min(58vh, 520px); }
+  body.m-watch #rightcol { display: flex; flex: none; min-height: 60vh; }
+  body.m-watch #panel-body { overflow: visible; }
+  body.m-watch.sheet-open #rightcol { position: fixed; overflow: auto; }
+  body.m-watch #panel-close { display: none; }
+  body.m-watch.sheet-open #panel-close { display: block; }
+  .playctl { gap: 6px; }
+  .playctl .prog { flex-basis: 100%; order: 9; }
+  #watch-say { font-size: 15px; }
+
+  .help-cards { grid-template-columns: 1fr; }
+  .help-body { padding: 14px 14px 4px; }
+  .help-actions { padding: 8px 14px 14px; }
+  .help-actions .big-btn { width: 100%; }
+}
+
+/* 触屏设备：说明页显示触屏操作，不显示键位表 */
+@media (pointer: coarse) {
+  .help-kbd { display: none; }
+  .help-touch-text { display: block; }
+}
+#rotate-hint:not([hidden]) { display: flex; }
