@@ -7,8 +7,8 @@ authors:
     given-names: Shuyao
     email: "gaoshuyao.mk@gmail.com"
     affiliation: "aSSIST University (Seoul School of Integrated Sciences and Technologies)"
-version: "1.0"
-date-released: "2026-11-05"
+version: "2.0"
+date-released: "2026-11-06"
 license: MIT
 repository-code: "https://github.com/ShuyaoGao/ai-business-blueprint"
 url: "https://shuyaogao.github.io/ai-business-blueprint/"

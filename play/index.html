@@ -22,10 +22,10 @@
 
 <!-- ===================== 顶栏 ===================== -->
 <header id="topbar">
-  <div class="brand"><span class="logo" aria-hidden="true"></span><span id="app-name">AI 业务拆解画板</span><small id="app-tagline">把业务拆成小方框：哪里用 AI、数据放哪</small></div>
+  <div class="brand"><span class="logo" aria-hidden="true"></span><span id="app-name">AI 业务拆解画板</span><small id="app-tagline">把业务拆成节点：数据 → 训练 → 模型 → 预测 → 动作</small></div>
   <nav id="modes" role="tablist" aria-label="模式">
-    <button data-mode="watch" role="tab" title="示例业务自动逐步拆开，每步配一句解说（快捷键 1）">观看</button>
-    <button data-mode="draw" role="tab" title="自己画：拖出方框、连线、填属性（快捷键 2）">我来画</button>
+    <button data-mode="watch" role="tab" title="示例业务一步步拆开、真的运行，每步配一句解说（快捷键 1）">观看</button>
+    <button data-mode="draw" role="tab" title="自己画：从左边拖节点、口对口连线、导入数据运行（快捷键 2）">我来画</button>
     <button data-mode="practice" role="tab" title="按任务清单练习，做完自动打勾（快捷键 3）">练习</button>
   </nav>
   <span class="spacer"></span>
@@ -34,7 +34,8 @@
   <button id="exit-btn" class="exit" title="停止所有动画并关闭页面">退出</button>
   <button id="menu-btn" type="button" aria-label="菜单" aria-expanded="false" aria-controls="menu">☰</button>
   <div id="menu" role="menu" hidden>
-    <button role="menuitem" type="button" data-panel="stats">统计</button>
+    <button role="menuitem" type="button" data-panel="run">运行结果</button>
+    <button role="menuitem" type="button" data-panel="check">检查</button>
     <button role="menuitem" type="button" data-panel="quad">四格图</button>
     <button role="menuitem" type="button" data-panel="list">Markdown 清单</button>
     <button role="menuitem" type="button" data-panel="tasks" class="only-practice">练习任务</button>
@@ -44,6 +45,7 @@
     <button role="menuitem" type="button" data-cmd="save-json" class="not-watch">下载 .json</button>
     <button role="menuitem" type="button" data-cmd="png">导出 PNG</button>
     <button role="menuitem" type="button" data-cmd="md">导出 Markdown 清单</button>
+    <button role="menuitem" type="button" data-cmd="copy-sample" class="only-watch">把这个示例复制到「我来画」</button>
     <button role="menuitem" type="button" data-cmd="fit">适应窗口</button>
     <div class="sep"></div>
     <button role="menuitem" type="button" data-cmd="help">操作说明</button>
@@ -65,18 +67,20 @@
         <select id="sample-select" aria-label="示例业务"></select>
         <span class="fict">虚构示例</span>
       </span>
-      <span class="grp" id="grp-add" aria-label="添加方框"></span>
+      <span class="grp" id="grp-run">
+        <button class="mini primary" id="btn-run" data-cmd="run" title="按连线顺序真的算一遍：读数据、训练、评估、预测（快捷键 R）">▶ 运行</button>
+      </span>
       <span class="grp" id="grp-edit">
-        <button class="mini" id="btn-connect" title="连线：先点起点方框，再点终点方框（电脑上也可以从方框边上的小圆点直接拖）">连线</button>
+        <button class="mini" id="btn-connect" title="连线：先点起点节点，再点终点节点，自动挑口（电脑上直接从右边的输出口拖到左边的输入口更快）">连线</button>
         <button class="mini" id="btn-undo" title="撤销（Ctrl+Z）">撤销</button>
         <button class="mini" id="btn-redo" title="重做（Ctrl+Y）">重做</button>
-        <button class="mini" id="btn-del" title="删除选中的方框或连线（Delete）">删除</button>
+        <button class="mini" id="btn-del" title="删除选中的节点或连线（Delete）">删除</button>
       </span>
       <span class="grp" id="grp-view">
         <button class="mini" id="btn-fit" title="适应窗口（F）">适应窗口</button>
         <button class="mini sq" id="btn-zoom-out" title="缩小" aria-label="缩小">−</button>
         <button class="mini sq" id="btn-zoom-in" title="放大" aria-label="放大">+</button>
-        <label class="switch sm" title="拖动时吸附网格并对齐别的方框"><input type="checkbox" id="ck-snap" checked> 吸附</label>
+        <label class="switch sm" title="拖动时吸附网格并对齐别的节点"><input type="checkbox" id="ck-snap" checked> 吸附</label>
       </span>
       <span class="grp dd" id="grp-file">
         <button class="mini" id="btn-file" aria-haspopup="true">文件 ▾</button>
@@ -92,10 +96,17 @@
       </span>
     </div>
 
-    <div id="stage-wrap">
-      <svg id="canvas" tabindex="0" aria-label="业务蓝图画布"><g id="world"></g></svg>
-      <div id="zoom-badge">100%</div>
-      <div id="connect-hint" hidden></div>
+    <div id="work">
+      <aside id="palette" aria-label="节点库">
+        <div class="palhead"><b>节点库</b><span class="hint">点一下或拖到画布上</span><button type="button" id="pal-close" aria-label="关闭节点库">返回画布</button></div>
+        <div id="palette-list"></div>
+      </aside>
+      <div id="stage-wrap">
+        <svg id="canvas" tabindex="0" aria-label="业务节点图画布"><g id="world"></g></svg>
+        <div id="zoom-badge">100%</div>
+        <div id="connect-hint" hidden></div>
+        <div class="empty-hint"><b>从左边的节点库拖一个「数据源」进来</b><span>右边的圆点是输出口，左边的是输入口：从输出口拖到输入口就连上了。拖到空白处松手，会问你接一个什么节点。</span></div>
+      </div>
     </div>
 
     <div id="dock">
@@ -114,7 +125,7 @@
         <div id="watch-say" aria-live="polite"></div>
       </div>
       <div class="dockpane" id="dock-draw">
-        <p class="howto"><b>怎么画：</b>点上面的方框按钮添加（选中一个环节时加在环节里），也可以把按钮直接拖到画布上；拖方框到环节里 = 变成它的小步骤；从方框边上的小圆点拖到另一个方框 = 连线（或点「连线」再先后点两个方框）；滚轮缩放，拖空白处平移。</p>
+        <p class="howto"><b>怎么画：</b>从左边拖节点到画布（拖到线上 = 插进中间）；从节点右边的输出口拖到下一个节点左边的输入口 = 连线，拖到空白处 = 选一个节点接上；点节点在右边改设置、「在后面接一个」；数据源里导入 CSV，点「▶ 运行」真的训练和预测。</p>
       </div>
     </div>
   </section>
@@ -123,7 +134,8 @@
     <div id="ptabs" role="tablist">
       <button data-tab="tasks" class="only-practice">任务 <span id="task-badge"></span></button>
       <button data-tab="props">属性</button>
-      <button data-tab="stats">统计 <span id="risk-badge"></span></button>
+      <button data-tab="run">结果 <span id="run-badge"></span></button>
+      <button data-tab="check">检查 <span id="risk-badge"></span></button>
       <button data-tab="quad">四格图</button>
       <button data-tab="list">清单</button>
     </div>
@@ -132,13 +144,14 @@
   </section>
 </main>
 
+<!-- 拖线到空白处 / 双击空白处：接一个什么节点 -->
+<div id="quick" role="dialog" aria-label="加一个节点" hidden></div>
+
 <!-- 手机底部大按钮 -->
 <div id="mob-bar">
-  <div class="dd up" id="mb-add-dd">
-    <button class="mbtn primary" id="mb-add" type="button"><b>＋</b><span>加方框</span></button>
-    <span class="ddmenu" id="mb-add-menu" role="menu"></span>
-  </div>
+  <button class="mbtn primary" id="mb-add" type="button"><b>＋</b><span>加节点</span></button>
   <button class="mbtn" id="mb-connect" type="button"><b>↗</b><span>连线</span></button>
+  <button class="mbtn" id="mb-run" type="button"><b>▶</b><span>运行</span></button>
   <button class="mbtn" id="mb-props" type="button"><b>✎</b><span>属性</span></button>
   <button class="mbtn" id="mb-del" type="button"><b>✕</b><span>删除</span></button>
   <button class="mbtn" id="mb-undo" type="button"><b>↶</b><span>撤销</span></button>
@@ -152,18 +165,18 @@
     <div class="help-body">
       <h2 id="help-title">30 秒上手</h2>
       <div class="help-cards">
-        <div class="hc"><h3>① 看示例</h3><p>「观看」把一家连锁餐厅、一座工厂、一个客服中心拆成方框，一步一句解说：哪个环节用哪类 AI、数据放哪、哪里有风险。</p></div>
-        <div class="hc"><h3>② 拆自己的业务</h3><p>「我来画」：先建几个<b>业务环节</b>（蓝色大框），再往里放<b>人工步骤</b>、<b>AI 能力</b>；旁边画<b>数据</b>和<b>外部系统</b>，用线连起来。点方框，在右边填属性。</p></div>
-        <div class="hc"><h3>③ 看结果</h3><p>「统计」告诉你多少环节用了 AI、哪些敏感数据流向了公有云（标红）；「四格图」排出先做什么；「清单」导出 Markdown，课后直接写方案。</p></div>
+        <div class="hc"><h3>① 看示例</h3><p>「观看」把连锁餐厅、工厂、客服中心拆成一串串节点：数据 → 拆分 → 训练 → 模型 → 评估；新数据 + 同一个模型 → 预测 → 规则 → 动作。每一步配解说，还会<b>真的运行</b>给你看结果。</p></div>
+        <div class="hc"><h3>② 拆自己的业务</h3><p>「我来画」：从左边<b>节点库</b>拖节点；节点<b>右边是输出口、左边是输入口</b>，口对口拖线就连上，类型对不上连不了。点节点，在右边改设置、点「在后面接一个」补下一步。</p></div>
+        <div class="hc"><h3>③ 真的跑起来</h3><p>数据源里「导入 CSV」或「用示例数据」，点「<b>▶ 运行</b>」：浏览器里训练、评估、预测。模型满意了就<b>锁定</b>，以后换新数据再运行只做预测，不重新训练。</p></div>
       </div>
       <div class="legend" id="help-legend"></div>
       <div class="keys-list help-kbd">
-        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换模式</span><span><kbd>空格</kbd> 观看：播放 / 暂停</span><span><kbd>Delete</kbd> 删除选中</span>
-        <span><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Y</kbd> 撤销 / 重做</span><span><kbd>方向键</kbd> 微移选中方框</span><span><kbd>F</kbd> 适应窗口</span>
-        <span><kbd>L</kbd> 连线</span><span><kbd>Esc</kbd> 取消连线 / 取消选中</span><span><kbd>H</kbd> 或右上角 <kbd>?</kbd> 再看这页</span>
+        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 切换模式</span><span><kbd>R</kbd> 或 <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 运行</span><span><kbd>空格</kbd> 观看：播放 / 暂停</span>
+        <span><kbd>Delete</kbd> 删除选中</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Y</kbd> 撤销 / 重做</span><span><kbd>F</kbd> 适应窗口</span>
+        <span><kbd>L</kbd> 连线（点两个节点）</span><span>双击空白处 加节点</span><span><kbd>H</kbd> 或右上角 <kbd>?</kbd> 再看这页</span>
       </div>
-      <p class="help-touch-text"><b>触屏：</b>单指拖方框（拖进蓝色大框 = 变成小步骤），单指拖空白处平移，双指缩放；底部「加方框」「连线」「属性」大按钮；右上角 ☰ 里有统计、四格图、清单和文件操作。</p>
-      <p class="help-foot">纯静态网页：不联网、不上传，所有内容只存在你这个浏览器里；要长期保存请「下载 .json」。示例里的公司和数字都是虚构的。</p>
+      <p class="help-touch-text"><b>触屏：</b>底部「加节点」打开节点库；按住输出口拖到下一个节点就连上（拖不准就点「连线」再先后点两个节点）；单指拖空白处平移，双指缩放；右上角 ☰ 里有结果、检查、四格图、清单和文件操作。</p>
+      <p class="help-foot">纯静态网页：不联网、不上传，数据和模型只存在你这个浏览器里；要长期保存请「下载 .json」。示例里的公司、数据和数字都是虚构的。</p>
     </div>
     <div class="help-actions"><button id="help-close" class="primary big-btn">开始</button></div>
   </div>
@@ -173,10 +186,14 @@
 <div id="exited" hidden><div><b>已停止</b><p>所有动画都停了，可以直接关闭这个标签页。</p><button type="button" onclick="location.reload()">重新打开</button></div></div>
 <div id="toast" role="status"></div>
 <input type="file" id="file-open" accept=".json,application/json" hidden>
+<input type="file" id="file-any" hidden>
 
 <script src="js/credits.js"></script>
 <script src="js/config.js"></script>
 <script src="js/model.js"></script>
+<script src="js/ml.js"></script>
+<script src="js/datasets.js"></script>
+<script src="js/engine.js"></script>
 <script src="js/analysis.js"></script>
 <script src="js/render.js"></script>
 <script src="js/samples.js"></script>
