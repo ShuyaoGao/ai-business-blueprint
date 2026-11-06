@@ -1,214 +1,206 @@
 /* 三个内置示例（全部虚构）与「观看」模式的逐步解说。纯数据 + 一个搭图函数，Node 测试也会读。
  *
- * 示例 = { id, title, short, stages: [{ k, name, desc, items: [{ k, type, name, ...属性 }] }], data: [...], edges: [[from, to, {label, kind}]],
- *          steps: [{ say, show: [k...], tab, sel, fix: function (doc, id) }] }
- * 布局：环节从左到右排成一行，环节里的方框竖着排；数据排在下面一行。
+ * 示例 = { id, title, short, rows: [[环节 k...]...],
+ *          stages: [{ k, name, desc, items: [{ k, type, ...属性 }] }],
+ *          edges: [[from, to, { fp, tp, label, masked }]],
+ *          steps: [{ say, show: [k...], sel: k 或 'e:a>b', tab, run: 运行一次, fix: function (doc, id, ctx) }] }
+ * 布局：环节按 rows 排（同一行从左到右），环节里的节点按连线先后从左到右排。
  */
 (function (root) {
   'use strict';
   var M = (root.ABB && root.ABB.Model) || require('./model.js');
-  var C = (root.ABB && root.ABB.Config) || require('./config.js');
+  var D = (root.ABB && root.ABB.Datasets) || require('./datasets.js');
 
-  function ai(k, name, aiType, input, output, loc, value, effort, desc) { return { k: k, type: 'ai', name: name, aiType: aiType, input: input, output: output, loc: loc, value: value, effort: effort, desc: desc || '' }; }
-  function hu(k, name, role, desc) { return { k: k, type: 'human', name: name, role: role, desc: desc || '' }; }
-  function ex(k, name, loc, desc) { return { k: k, type: 'ext', name: name, loc: loc, desc: desc || '' }; }
-  function da(k, name, level, loc, desc) { return { k: k, type: 'data', name: name, level: level, loc: loc, desc: desc || '' }; }
+  function N(k, type, name, props) { var o = props || {}; o.k = k; o.type = type; o.name = name; return o; }
 
   var SAMPLES = [
     // ======================================================================
     {
       id: 'restaurant', short: '连锁餐饮', title: '连锁餐饮：50 家门店的快餐连锁（虚构示例）',
+      rows: [['S1'], ['S2'], ['S3', 'S4']],
       stages: [
-        { k: 'S1', name: '备货采购', desc: '每天晚上给每家店订明天的食材', items: [
-          ai('f1', '明日销量预测', 'predict', '近两年每店每道菜的销量、天气、节假日', '每店每道菜明天卖几份', 'private', 'high', 'mid', '订多了浪费，订少了断货；这是餐饮最值钱的一个预测。'),
-          ai('f2', '自动生成订货单', 'optimize', '预测份数、库存、保质期、起订量', '每家店的订货单', 'private', 'high', 'mid'),
-          hu('f3', '店长确认订货', '店长', 'AI 出草稿，人拍板：店长知道明天门口修路。'),
-          ex('f4', '供应商订货平台', 'public')] },
-        { k: 'S2', name: '排班', desc: '按客流安排每家店的人手', items: [
-          ai('b1', '自动排班', 'optimize', '客流预测、员工可上班时间、工时规定', '下周排班表', 'private', 'mid', 'low'),
-          hu('b2', '店长微调排班', '店长')] },
-        { k: 'S3', name: '点餐收银', desc: '堂食、外卖两条入口', items: [
-          ex('c1', '外卖平台', 'public'),
-          ex('c2', '收银系统', 'public', '租用的云收银（SaaS）'),
-          ai('c3', '加购推荐', 'recommend', '本单菜品、会员历史订单', '推荐一样饮料或小吃', 'private', 'mid', 'mid')] },
-        { k: 'S4', name: '后厨出品', desc: '按单做菜、出餐', items: [
-          hu('k1', '厨师按单制作', '厨师'),
-          ai('k2', '出餐拍照核对', 'vision', '出餐口照片', '漏菜、份量异常提醒', 'local', 'low', 'high', '看起来很酷，但漏菜靠出餐单和人工核对已经能解决。')] },
-        { k: 'S5', name: '评价与营销', desc: '听顾客怎么说，再把新品卖出去', items: [
-          ai('m1', '差评归类', 'llm', '外卖平台上的评价', '每周问题清单（口味 / 等太久 / 漏送）', 'public', 'high', 'low'),
-          ai('m2', '会员短信文案', 'llm', '会员信息（手机号、消费记录）', '个性化促销短信', 'public', 'mid', 'low'),
-          ai('m3', '新品海报', 'imagegen', '新品照片、一句文案', '海报图片', 'public', 'low', 'low'),
-          hu('m4', '运营经理审核发布', '运营经理', 'AI 写的东西，发出去之前人要看一眼。')] }
-      ],
-      data: [
-        da('d1', '销售流水', 'internal', 'private', '每单卖了什么、几点卖的'),
-        da('d2', '会员信息', 'sensitive', 'private', '手机号、生日、消费记录'),
-        da('d3', '员工信息', 'sensitive', 'local', '姓名、电话、可上班时间'),
-        da('d4', '核心配方', 'secret', 'local', '酱料配方和工艺：店的命根子')
+        { k: 'S1', name: '① 用历史数据训练「销量预测模型」', items: [
+          N('d1', 'src', '销售流水（近一年）', { labeled: true, target: '销量', level: 'internal', loc: 'private', sys: '云收银系统导出', cols: '门店、门店类型、星期、节假日、气温、下雨、昨日销量、销量', csv: '@sales', csvName: '销售流水.csv', desc: '每行 = 一家店一天；「销量」这一列就是答案（标签）。' }),
+          N('p1', 'feature', '选字段', { keep: '门店类型 星期 节假日 气温 下雨 昨日销量', desc: '去掉「门店」编号：它只是个代号，留着模型会死记硬背。' }),
+          N('p2', 'split', '拆分训练 / 测试', { ratio: 0.8 }),
+          N('t1', 'train', '训练：随机森林', { algo: 'forest', loc: 'private', value: 'high', effort: 'mid', desc: '订多了浪费，订少了断货；这是餐饮最值钱的一个预测。' }),
+          N('m1', 'model', '销量预测模型', { version: 'v1', loc: 'private' }),
+          N('e1', 'evaluate', '评估：考一考', {})] },
+        { k: 'S2', name: '② 每天晚上：新数据 + 同一个模型 → 预测 → 订货', items: [
+          N('d2', 'newdata', '明天各门店的情况', { level: 'internal', loc: 'private', sys: '门店系统 + 天气预报', csv: '@sales_new', csvName: '明天.csv', desc: '没有「销量」：正等着模型预测。' }),
+          N('f1', 'predict', '预测明天销量', { loc: 'private' }),
+          N('a1', 'ai', '自动生成订货单', { aiType: 'optimize', input: '每店预测销量 + 库存', output: '订货单草稿', loc: 'private', value: 'high', effort: 'mid' }),
+          N('h1', 'human', '店长确认订货', { role: '店长', desc: 'AI 出草稿，人拍板：店长知道明天门口修路。' }),
+          N('x1', 'ext', '供应商订货平台', { loc: 'public' }),
+          N('r1', 'rule', '高峰门店', { col: '预测_销量', op: '>', val: '200' }),
+          N('g1', 'action', '高峰门店加派人手', { role: '区域经理' }),
+          N('c1', 'collect', '回收实际销量', { wait: '第二天打烊', role: '收银系统自动' })] },
+        { k: 'S3', name: '③ 会员营销', items: [
+          N('d3', 'src', '会员信息', { labeled: false, level: 'sensitive', loc: 'private', cols: '姓名、手机号、生日、消费记录', sys: '会员小程序' }),
+          N('a2', 'ai', '大模型写促销短信', { aiType: 'llm', input: '会员消费记录', output: '个性化短信', loc: 'public', value: 'mid', effort: 'low' }),
+          N('h2', 'human', '运营审核', { role: '运营经理', desc: 'AI 写的东西，发出去之前人要看一眼。' }),
+          N('g2', 'action', '群发短信', {})] },
+        { k: 'S4', name: '④ 评价分析', items: [
+          N('d4', 'src', '外卖平台评价', { form: 'text', labeled: false, level: 'internal', loc: 'public', sys: '外卖平台' }),
+          N('a3', 'ai', '差评归类', { aiType: 'llm', input: '评价文字', output: '问题清单（口味 / 等太久 / 漏送）', loc: 'public', value: 'high', effort: 'low' }),
+          N('a4', 'ai', '新品海报', { aiType: 'imagegen', input: '新品照片 + 一句文案', output: '海报', loc: 'public', value: 'low', effort: 'low' }),
+          N('s1', 'store', '每周问题清单', { level: 'internal' })] }
       ],
       edges: [
-        ['d1', 'f1', { label: '历史销量' }], ['f1', 'f2', { label: '预测份数' }], ['f2', 'f3'], ['f3', 'f4', { label: '订单' }],
-        ['f1', 'b1', { label: '客流预测' }], ['d3', 'b1', { label: '可上班时间' }], ['b1', 'b2'],
-        ['c2', 'd1', { label: '销售记录' }], ['d2', 'c3', { label: '会员历史' }], ['c3', 'c2', { label: '推荐' }],
-        ['c1', 'k1', { label: '外卖单' }], ['c2', 'k1', { label: '堂食单' }], ['d4', 'k1', { label: '配方' }], ['k1', 'k2'], ['f4', 'k1', { label: '送货' }],
-        ['c1', 'm1', { label: '评价', kind: 'data' }], ['d2', 'm2', { label: '手机号、消费记录' }],
-        ['m1', 'm4', { label: '问题清单' }], ['m2', 'm4'], ['m3', 'm4']
+        ['d1', 'p1'], ['p1', 'p2'], ['p2', 't1', { fp: 'train' }], ['t1', 'm1'], ['m1', 'e1'], ['p2', 'e1', { fp: 'test', tp: 'test' }],
+        ['m1', 'f1'], ['d2', 'f1', { tp: 'in' }], ['f1', 'a1'], ['a1', 'h1'], ['h1', 'x1', { label: '订单' }], ['f1', 'r1'], ['r1', 'g1', { fp: 'yes' }],
+        ['f1', 'c1'], ['c1', 'd1', { label: '下一轮训练' }],
+        ['d3', 'a2', { label: '手机号、消费记录' }], ['a2', 'h2'], ['h2', 'g2'],
+        ['d4', 'a3'], ['a3', 's1']
       ],
       steps: [
-        { say: '一家 50 家门店的快餐连锁（虚构）。第一步不碰 AI，先把业务拆成 5 个大环节：备货采购、排班、点餐收银、后厨出品、评价与营销。', show: ['S1', 'S2', 'S3', 'S4', 'S5'] },
-        { say: '备货采购：最值钱的是「明天每道菜卖几份」——这是预测（机器学习）的活儿，吃的是近两年的销量、天气和节假日。', show: ['f1'], sel: 'f1' },
-        { say: '有了预测，订多少由优化算法算：在库存、保质期、起订量这些限制下，找最省的订法。', show: ['f2'], sel: 'f2' },
-        { say: 'AI 只出草稿，店长拍板——明天门口修路这种事，AI 不知道。订单最后发到供应商的平台（外部系统，在公有云）。', show: ['f3', 'f4'] },
-        { say: '排班也是优化问题：按客流预测和员工可上班时间排；店长再微调。', show: ['b1', 'b2'], sel: 'b1' },
-        { say: '点餐收银：外卖平台和云收银系统都是现成的外部系统；AI 只做一件事——加购推荐，猜你还想要一杯饮料。', show: ['c1', 'c2', 'c3'], sel: 'c3' },
-        { say: '后厨出品：做菜靠人。「出餐拍照核对」用图像识别，看着很酷——等会儿四格图里看它值不值得做。', show: ['k1', 'k2'], sel: 'k2' },
-        { say: '评价与营销是大模型的主场：把几千条外卖评价归成问题清单；写会员短信；图像生成画新品海报。发出去之前，运营经理要看一眼。', show: ['m1', 'm2', 'm3', 'm4'], sel: 'm1' },
-        { say: '再画数据：存在哪（本地 / 私有云 / 公有云）、多敏感（公开 / 内部 / 敏感 / 机密）。核心配方是机密，只放本地。虚线就是数据往哪流。', show: ['d1', 'd2', 'd3', 'd4'], sel: 'd4' },
-        { say: '一键统计：5 个环节全都用上了 AI，AI 步骤和人工步骤大约 2 : 1；用得最多的是大模型和优化算法。', tab: 'stats' },
-        { say: '四格图：按「业务价值 × 落地难度」排队。差评归类、会员短信、自动排班「先做」；销量预测、自动订货、加购推荐价值高但要花功夫，「规划」；新品海报「顺手做」；出餐拍照核对价值低、难度高——「先别做」。', tab: 'quad' },
-        { say: '标红了：会员的手机号和消费记录，被直接送进了公有云上的大模型去写短信。这是敏感个人信息出公司。', tab: 'stats', sel: 'e:d2>m2' },
-        { say: '改法：只把「会员分群标签」（比如"爱吃辣、周末来"）传给大模型，勾上「已脱敏」。红变黄——黄色是提醒你找 IT 和法务确认脱敏到位。', tab: 'stats', sel: 'e:d2>m2',
-          fix: function (doc, id) { var e = M.getEdge(doc, id('e:d2>m2')); e.masked = true; e.label = '只传会员分群标签'; var n = M.get(doc, id('m2')); n.input = '会员分群标签（不含手机号）'; } },
-        { say: '最后导出 Markdown 清单：每个环节用什么 AI、输入输出、数据放哪、先做什么——学员课后直接拿去写方案。', tab: 'list' }
+        { say: '一家 50 家门店的快餐连锁（虚构）。先把业务拆成 4 个环节。每个环节里是一串节点：左边是输入口，右边是输出口，口对口连起来。', show: ['S1', 'S2', 'S3', 'S4'] },
+        { say: '先看最值钱的：明天每家店卖几份。起点是「销售流水」，每行一家店一天，最后一列「销量」就是答案。有答案的数据叫「有标签」，监督学习只能用这种数据。', show: ['d1'], sel: 'd1', tab: 'props' },
+        { say: '「选字段」：去掉「门店」编号，只留门店类型、星期、节假日、天气、昨日销量。编号只是个代号，留着模型会死记硬背。', show: ['p1'], sel: 'p1' },
+        { say: '「拆分」：随机拿 80% 当训练集，留 20% 当测试集。测试集模型没见过，用它考出来的分才算数。', show: ['p2'], sel: 'p2' },
+        { say: '「训练」：选一种算法喂进训练集。这里选随机森林：很多棵决策树一起投票，预测数字、分类都能做，是表格数据的好起点。', show: ['t1'], sel: 't1' },
+        { say: '训练出来的东西是「模型」，它是一份可以存下来的文件。注意：模型训练一次，后面可以反复用。', show: ['m1'], sel: 'm1' },
+        { say: '「评估」：一边接模型，一边接测试集。点了运行，浏览器真的把这 420 行数据算了一遍：看右边，平均每家店差几份、R² 多少（越接近 1 越准），还有模型最看重哪几个字段。', show: ['e1'], sel: 'e1', tab: 'run', run: true },
+        { say: '每天晚上来一份新数据：「明天各门店的情况」，没有销量。新数据 + 同一个模型接进「预测」，每家店得到一个预测数字。右边就是预测结果。', show: ['S2', 'd2', 'f1'], sel: 'f1', tab: 'run', run: true },
+        { say: '预测完要有人和系统接着干活：优化算法按预测生成订货单，店长确认，再发给供应商平台；规则节点筛出预测超过 200 份的高峰门店，加派人手。', show: ['a1', 'h1', 'x1', 'r1', 'g1'], sel: 'r1', tab: 'run', run: true },
+        { say: '第二天打烊后，实际卖了多少就知道了。「回收实际销量」把它补回销售流水（虚线是反馈线），下一轮训练用，模型越用越准。这就是数据飞轮。', show: ['c1'], sel: 'c1', tab: 'props' },
+        { say: '模型满意了就「锁定」。锁定后它固定下来，以后运行只做预测，不再重新训练。', show: [], sel: 'm1', tab: 'props', fix: function (doc, id, ctx) { var m = M.get(doc, id('m1')); if (!m.trained && ctx && ctx.train) ctx.train(doc); m.locked = !!m.trained; } },
+        { say: '换一份新数据（后天）再运行：「训练」显示「跳过」，模型直接拿来用，几毫秒就出了新的预测。这就是「训练一次，反复预测」。', show: [], sel: 'f1', tab: 'run', run: true, fix: function (doc, id) { var d = M.get(doc, id('d2')); d.name = '后天各门店的情况'; d.csv = D.get('sales_new2'); d.csvName = '后天.csv'; } },
+        { say: '再看会员营销：会员信息（敏感：手机号、消费记录）直接送进了运行在公有云的大模型写短信。线标红了，看「检查」。', show: ['S3', 'd3', 'a2', 'h2', 'g2'], sel: 'e:d3>a2', tab: 'check' },
+        { say: '改法之一：在这条线中间插一个「脱敏」节点，只把消费记录交给大模型，姓名、手机号留在公司里。红变黄：黄是提醒你确认脱敏到位。', show: [], sel: 'mask', tab: 'check',
+          fix: function (doc, id) { var r = M.insertOnEdge(doc, id('e:d3>a2'), 'mask'); if (r.node) { r.node.name = '脱敏：去掉姓名、手机号'; r.node.drop = '姓名 手机号'; id.set('mask', r.node.id); } M.get(doc, id('a2')).input = '消费记录（不含姓名、手机号）'; } },
+        { say: '评价分析：评价本来就在外卖平台上，是公开的，交给公有云大模型没问题。新品海报用图像生成。打开「四格图」：每个训练节点和 AI 服务按「业务价值 × 落地难度」排出先做什么。', show: ['S4', 'd4', 'a3', 'a4', 's1'], tab: 'quad' },
+        { say: '最后打开「清单」：按连线顺序列出每个节点的输入、输出、设置和运行结果，课后直接拿去写方案。想自己改，点「文件 ▾ → 把这个示例复制到『我来画』」。', show: [], tab: 'list' }
       ]
     },
     // ======================================================================
     {
       id: 'factory', short: '工厂质检', title: '工厂质检：汽车零部件厂，从来料到出货（虚构示例）',
+      rows: [['F1'], ['F2'], ['F3', 'F4']],
       stages: [
-        { k: 'S1', name: '来料检验', desc: '供应商送来的料，先查再用', items: [
-          ex('i1', '供应商', 'public', '送货单、出厂检验报告'),
-          ai('i2', '识别送货单和检验报告', 'ocr', '送货单、检验报告的照片或 PDF', '批号、数量、关键指标', 'public', 'mid', 'low'),
-          ai('i3', '是否免检', 'rules', '供应商等级、近 3 批检验结果', '免检 / 抽检 + 依据', 'local', 'mid', 'low', '规则：A 级供应商且近 3 批都合格 → 免检。'),
-          hu('i4', '抽检员抽检', '来料检验员')] },
-        { k: 'S2', name: '生产', desc: '排产、开机、设备维护', items: [
-          ex('p0', 'ERP', 'local', '订单、库存、出货都记在这里'),
-          ai('p1', '排产', 'optimize', '订单、设备产能、换模时间', '每台设备的生产顺序', 'local', 'high', 'high'),
-          ai('p2', '设备故障预警', 'anomaly', '振动、温度、电流读数', '异常报警', 'local', 'high', 'mid'),
-          hu('p3', '维修工检修', '设备维修工')] },
-        { k: 'S3', name: '外观质检', desc: '拆得最细的一段：每个零件拍照、判定、复判', items: [
-          ai('q1', '缺陷检测', 'vision', '工位相机拍的产品照片', '缺陷类型、位置、把握有多大', 'local', 'high', 'high'),
-          ai('q2', '判定合格', 'rules', '缺陷尺寸和位置、客户标准', '合格 / 不合格 + 依据', 'local', 'high', 'low'),
-          hu('q3', '把握不大的交人复判', '质检员'),
-          ai('q4', '良率预测', 'predict', '工艺参数、历史良率', '下一批良率，提前调参', 'local', 'low', 'high', '历史数据还不够多时，先别做。')] },
-        { k: 'S4', name: '报告与出货', desc: '写报告、签字、发给客户', items: [
-          ai('r1', '生成质检日报', 'llm', '当天检验结果、工艺参数', '质检日报文字', 'public', 'low', 'low'),
-          hu('r2', '质量经理签字', '质量经理'),
-          ex('r3', '客户质量系统', 'public')] }
-      ],
-      data: [
-        da('x1', '设备传感器数据', 'internal', 'local'),
-        da('x2', '产品照片与缺陷样本库', 'internal', 'local', '训练缺陷检测模型用'),
-        da('x3', '工艺参数', 'secret', 'local', '温度、压力、配比：工厂的核心技术'),
-        da('x4', '客户图纸与标准', 'secret', 'local', '客户给的，合同里写明不能外传')
+        { k: 'F1', name: '① 用历史质检记录训练「缺陷预测模型」', items: [
+          N('d1', 'src', '历史质检记录', { labeled: true, target: '结果', level: 'secret', loc: 'local', sys: 'MES 生产系统', cols: '零件编号、供应商、班次、炉温、保温分钟、长度偏差、表面粗糙度、结果', csv: '@parts', csvName: '质检记录.csv', desc: '炉温、保温时间是核心工艺参数：机密。' }),
+          N('p1', 'clean', '清洗', { desc: '去掉传感器掉线造成的空值和重复记录。' }),
+          N('p2', 'split', '拆分训练 / 测试', { ratio: 0.8 }),
+          N('t1', 'train', '训练：决策树', { algo: 'tree', loc: 'local', value: 'high', effort: 'mid', desc: '决策树像一串「如果……就……」，质检主管看得懂。' }),
+          N('m1', 'model', '缺陷预测模型', { version: 'v1', loc: 'local' }),
+          N('e1', 'evaluate', '评估：准确率', {})] },
+        { k: 'F2', name: '② 每批零件下线：预测 → 分流', items: [
+          N('d2', 'newdata', '今天这批零件', { level: 'secret', loc: 'local', sys: 'MES 生产系统', csv: '@parts_new', csvName: '今天.csv' }),
+          N('f1', 'predict', '预测哪些会有缺陷', { loc: 'local' }),
+          N('r1', 'rule', '预测为缺陷？', { col: '预测_结果', op: '=', val: '缺陷' }),
+          N('h1', 'human', '质检员重点复检', { role: '质检员' }),
+          N('g1', 'action', '隔离返工', {}),
+          N('g2', 'action', '抽检后出货', {})] },
+        { k: 'F3', name: '③ 外观缺陷：照片 → 人工标注 → 训练', items: [
+          N('d3', 'src', '产线照片', { form: 'image', labeled: false, level: 'internal', loc: 'local', sys: '工位相机' }),
+          N('l1', 'label', '人工标注缺陷', { role: '质检员', target: '是否缺陷', desc: '照片本身没有答案，要人一张张标：有没有划痕、气泡。' }),
+          N('t2', 'train', '训练：神经网络', { algo: 'nn', loc: 'local', value: 'high', effort: 'high' }),
+          N('m2', 'model', '外观缺陷模型', { version: 'v1', loc: 'local' }),
+          N('d4', 'newdata', '实时照片', { form: 'image', level: 'internal', loc: 'local', sys: '工位相机' }),
+          N('f2', 'predict', '实时判外观', { loc: 'local' }),
+          N('h2', 'human', '可疑件人工复看', { role: '质检员' })] },
+        { k: 'F4', name: '④ 质检日报', items: [
+          N('a1', 'ai', '大模型写质检日报', { aiType: 'llm', input: '当天预测和复检结果', output: '日报', loc: 'public', value: 'mid', effort: 'low' }),
+          N('s1', 'store', '日报存档', { level: 'internal' })] }
       ],
       edges: [
-        ['i1', 'i2', { label: '送货单、报告', kind: 'data' }], ['i2', 'i3', { label: '批号、指标' }], ['i3', 'i4', { label: '要抽检的批次' }],
-        ['p0', 'p1', { label: '订单', kind: 'data' }], ['x1', 'p2', { label: '传感器读数' }], ['p2', 'p3', { label: '报警' }],
-        ['x2', 'q1', { label: '照片' }], ['q1', 'q2', { label: '缺陷' }], ['q2', 'q3', { label: '把握不大的' }], ['x4', 'q2', { label: '客户标准' }], ['x3', 'q4', { label: '工艺参数' }],
-        ['q2', 'r1', { label: '检验结果', kind: 'data' }], ['x3', 'r1', { label: '工艺参数' }], ['r1', 'r2'], ['r2', 'r3', { label: '质检报告' }], ['r2', 'p0', { label: '放行' }]
+        ['d1', 'p1'], ['p1', 'p2'], ['p2', 't1', { fp: 'train' }], ['t1', 'm1'], ['m1', 'e1'], ['p2', 'e1', { fp: 'test', tp: 'test' }],
+        ['m1', 'f1'], ['d2', 'f1', { tp: 'in' }], ['f1', 'r1'], ['r1', 'h1', { fp: 'yes' }], ['h1', 'g1'], ['r1', 'g2', { fp: 'no' }],
+        ['d3', 'l1'], ['l1', 't2'], ['t2', 'm2'], ['m2', 'f2'], ['d4', 'f2', { tp: 'in' }], ['f2', 'h2'],
+        ['f1', 'a1', { label: '预测结果（含工艺参数）' }], ['a1', 's1']
       ],
       steps: [
-        { say: '一家汽车零部件厂（虚构）：从来料到出货拆成 4 个环节。外观质检拆得最细，因为钱和风险都在这里。', show: ['S1', 'S2', 'S3', 'S4'] },
-        { say: '来料检验：供应商送来的单据五花八门，文档识别（OCR）把它们变成批号、数量、指标。', show: ['i1', 'i2'], sel: 'i2' },
-        { say: '要不要抽检？规则引擎按写清楚的规则判断：A 级供应商、近 3 批都合格就免检。每一步都能解释，审计时说得清。', show: ['i3', 'i4'], sel: 'i3' },
-        { say: '生产：排产是优化算法——订单、产能、换模时间一起算。设备故障预警是异常检测：读数和平时不一样就报警，维修工去看。', show: ['p0', 'p1', 'p2', 'p3'], sel: 'p2' },
-        { say: '外观质检第一步：图像识别看照片，找缺陷，还要报告「把握有多大」。', show: ['q1'], sel: 'q1' },
-        { say: '合格不合格不让 AI 自由发挥：用规则引擎按客户标准判，把握不大的交给质检员复判。AI + 规则 + 人，各干各擅长的。', show: ['q2', 'q3'], sel: 'q3' },
-        { say: '良率预测听起来很好，但这家厂历史数据不够、工艺常改——放进四格图看看。', show: ['q4'], sel: 'q4' },
-        { say: '报告与出货：大模型把当天结果写成日报，质量经理签字后发给客户的质量系统，再在 ERP 里放行。', show: ['r1', 'r2', 'r3'], sel: 'r1' },
-        { say: '数据：工艺参数和客户图纸都是机密，放本地。产品照片也在本地——缺陷检测模型就装在厂里。', show: ['x1', 'x2', 'x3', 'x4'], sel: 'x3' },
-        { say: '统计：4 个环节都用上了 AI；用到规则引擎 2 次——很多"自动化"规则就够，不一定要大模型。', tab: 'stats' },
-        { say: '四格图：判定合格、单据识别、免检规则「先做」；缺陷检测和排产价值高但难，「规划」；良率预测「先别做」。', tab: 'quad' },
-        { say: '标红：机密的工艺参数被直接送进了公有云上的大模型，只为了写一份日报。', tab: 'stats', sel: 'e:x3>r1' },
-        { say: '改法：写日报的大模型改成本地部署（或者只传统计数字）。改完，红点消失。', tab: 'stats', sel: 'r1',
-          fix: function (doc, id) { M.get(doc, id('r1')).loc = 'local'; } },
-        { say: '导出 Markdown 清单，就是一份工厂 AI 落地的初稿。', tab: 'list' }
+        { say: '一家汽车零部件厂（虚构）。拆成 4 个环节：训练缺陷预测模型、每批零件下线时预测、外观照片检测、写质检日报。', show: ['F1', 'F2', 'F3', 'F4'] },
+        { say: '起点是「历史质检记录」：每行一个零件，最后一列「结果」（合格 / 缺陷）是人检出来的答案，所以是有标签数据。炉温、保温时间是核心工艺：机密，只放本地。', show: ['d1'], sel: 'd1' },
+        { say: '「清洗」去掉传感器掉线造成的空值和重复记录；「拆分」留 20% 当考题。', show: ['p1', 'p2'], sel: 'p2' },
+        { say: '「训练」选决策树：它学出来的是一串「如果炉温偏离超过 X，且粗糙度大于 Y，就容易出缺陷」，质检主管看得懂。零件编号几乎每行都不一样，训练时会自动不用。', show: ['t1', 'm1'], sel: 't1' },
+        { say: '运行并评估：看准确率，再和「全猜合格」比一比。模型只有比瞎猜好得多，才值得上线。右边还列出模型最看重哪几个字段。', show: ['e1'], sel: 'e1', tab: 'run', run: true },
+        { say: '每批零件下线：「今天这批零件」+ 同一个模型 → 预测。规则节点按预测分流：预测为缺陷的送质检员重点复检，其余抽检后出货。', show: ['d2', 'f1', 'r1', 'h1', 'g1', 'g2'], sel: 'r1', tab: 'run', run: true },
+        { say: '外观缺陷靠照片。照片本身没有答案，所以中间多了「人工标注」：质检员一张张标出有没有划痕、气泡，无标签数据就变成了有标签数据，才能训练。', show: ['d3', 'l1'], sel: 'l1', tab: 'props' },
+        { say: '照片要用神经网络训练，浏览器里跑不了，这里只画图。同样是训练一次、得到模型，再对实时照片反复预测。', show: ['t2', 'm2', 'd4', 'f2', 'h2'], sel: 't2' },
+        { say: '质检日报交给公有云大模型来写。但送进去的预测结果里带着今天这批零件的工艺参数（机密），检查顺着连线一路追过去，标红了。', show: ['a1', 's1'], sel: 'a1', tab: 'check' },
+        { say: '改法：大模型改成本地部署（工厂自己的服务器），红点消失。另一种改法是只把「合格 / 缺陷」数量发出去，不传工艺参数。', show: [], sel: 'a1', tab: 'check', fix: function (doc, id) { M.get(doc, id('a1')).loc = 'local'; } },
+        { say: '四格图：缺陷预测价值高、难度中，规划着做；日报价值中、难度低，先做。外观神经网络价值高、难度高，要专门团队。', show: [], tab: 'quad' },
+        { say: '清单里是每个节点的输入、输出和设置。想动手改：文件 ▾ → 把这个示例复制到「我来画」。', show: [], tab: 'list' }
       ]
     },
     // ======================================================================
     {
       id: 'callcenter', short: '客服中心', title: '客服中心：家电品牌的电话 + 在线客服（虚构示例）',
+      rows: [['K1', 'K2'], ['K3'], ['K4']],
       stages: [
-        { k: 'S1', name: '接入与分流', desc: '电话和 APP 两个入口', items: [
-          ex('a1', '呼叫中心平台', 'public'),
-          ex('a2', 'APP 在线客服', 'public'),
-          ai('a3', '通话实时转文字', 'speech', '通话录音', '文字记录', 'public', 'high', 'low'),
-          ai('a4', '判断来意并分流', 'llm', '客户的第一句话（文字）', '查物流 / 报修 / 投诉，转机器人或人工', 'private', 'high', 'mid')] },
-        { k: 'S2', name: '机器人自助', desc: '能自助的不占用坐席', items: [
-          ai('b1', '按手册和保修政策回答', 'rag', '客户问题 + 产品手册、保修政策', '带出处的回答', 'private', 'high', 'mid'),
-          ai('b2', '查订单、约上门维修', 'agent', '客户请求', '查到的物流、约好的上门时间', 'private', 'mid', 'high', '智能体能动手改系统，权限只开查询和预约。'),
-          ex('b3', '订单与派工系统', 'private')] },
-        { k: 'S3', name: '人工坐席', desc: '复杂问题和投诉', items: [
-          hu('c1', '坐席处理复杂问题', '客服坐席'),
-          ai('c2', '实时推荐回复话术', 'llm', '对话文字 + 知识库', '建议回复', 'private', 'mid', 'mid'),
-          ai('c3', '情绪识别', 'speech', '通话语音', '情绪激动提醒', 'private', 'low', 'low'),
-          ai('c4', '退款审批', 'rules', '订单金额、退款原因', '200 元以下自动通过，其余转班长', 'private', 'mid', 'low'),
-          hu('c5', '班长处理升级投诉', '班长')] },
-        { k: 'S4', name: '事后分析', desc: '复盘和排班', items: [
-          ai('d1', '通话摘要、自动填工单', 'llm', '通话文字', '摘要和工单字段', 'private', 'high', 'low'),
-          ai('d2', '全量通话质检', 'llm', '全部通话文字', '违规承诺、服务问题清单', 'private', 'mid', 'low'),
-          ai('d3', '来电量预测', 'predict', '历史来电量、促销日历', '下周每小时来电量', 'private', 'mid', 'mid'),
-          ai('d4', '坐席排班', 'optimize', '来电量预测、坐席可上班时间', '排班表', 'private', 'mid', 'low')] }
-      ],
-      data: [
-        da('y1', '通话录音', 'sensitive', 'local', '里面有姓名、地址、电话'),
-        da('y2', '客户档案与订单', 'sensitive', 'private'),
-        da('y3', '产品手册与保修政策', 'open', 'public', '本来就公开在官网上')
+        { k: 'K1', name: '① 客户数据先脱敏', items: [
+          N('d1', 'src', '客户档案 + 是否流失', { labeled: true, target: '是否流失', level: 'sensitive', loc: 'private', sys: 'CRM', cols: '客户编号、姓名、手机号、套餐、会员月数、月消费、近30天来电、上次满意度、有未解决工单、是否流失', csv: '@cust', csvName: '客户档案.csv' }),
+          N('k1', 'mask', '脱敏', { drop: '姓名 手机号', desc: '训练用不着姓名和手机号，先去掉。' })] },
+        { k: 'K2', name: '② 有标签：流失预测（监督学习）', items: [
+          N('p2', 'split', '拆分训练 / 测试', { ratio: 0.8 }),
+          N('t1', 'train', '训练：逻辑回归', { algo: 'logreg', loc: 'private', value: 'high', effort: 'low', desc: '分「会走 / 不会走」两类，给出把握，好解释。' }),
+          N('m1', 'model', '流失预测模型', { version: 'v1', loc: 'private' }),
+          N('e1', 'evaluate', '评估：准确率', {})] },
+        { k: 'K3', name: '③ 每月：本月客户 → 预测流失 + 分群', items: [
+          N('d2', 'newdata', '本月客户', { level: 'sensitive', loc: 'private', sys: 'CRM', csv: '@cust_new', csvName: '本月客户.csv' }),
+          N('f1', 'predict', '预测谁会走', { loc: 'private' }),
+          N('r1', 'rule', '可能流失', { col: '预测_是否流失', op: '=', val: '是' }),
+          N('g1', 'action', '客户经理打电话回访', { role: '客户经理' }),
+          N('t2', 'train', '训练：K-means 分群', { algo: 'kmeans', k: 3, loc: 'private', value: 'mid', effort: 'low', desc: '不看答案，按行为把客户分成 3 群。' }),
+          N('m2', 'model', '客户分群模型', { version: 'v1', loc: 'private' }),
+          N('f2', 'predict', '给本月客户分群', { loc: 'private' }),
+          N('h1', 'human', '运营按群定策略', { role: '运营' })] },
+        { k: 'K4', name: '④ 通话录音', items: [
+          N('d3', 'src', '通话录音', { form: 'audio', labeled: false, level: 'sensitive', loc: 'local', sys: '呼叫中心' }),
+          N('a1', 'ai', '语音转文字', { aiType: 'speech', input: '通话录音', output: '通话文字', loc: 'public', value: 'high', effort: 'mid' }),
+          N('a2', 'ai', '大模型写通话小结', { aiType: 'llm', input: '通话文字', output: '小结 + 情绪', loc: 'private', value: 'high', effort: 'low' }),
+          N('x1', 'ext', '工单系统', { loc: 'private' })] }
       ],
       edges: [
-        ['a1', 'y1', { label: '录音', kind: 'data' }], ['y1', 'a3', { label: '通话录音' }], ['a3', 'a4', { label: '文字' }], ['a2', 'a4', { label: '文字消息' }],
-        ['a4', 'b1', { label: '一般问题' }], ['a4', 'b2', { label: '查单 / 报修' }], ['a4', 'c1', { label: '投诉 / 复杂问题' }],
-        ['y3', 'b1', { label: '手册' }], ['b2', 'b3', { label: '查询、预约', kind: 'data' }], ['y2', 'b2', { label: '客户档案' }],
-        ['c2', 'c1', { label: '建议回复' }], ['c3', 'c5', { label: '情绪提醒' }], ['c1', 'c4', { label: '退款申请' }], ['c4', 'c5', { label: '200 元以上' }],
-        ['a3', 'd1', { label: '通话文字', kind: 'data' }], ['a3', 'd2', { label: '通话文字', kind: 'data' }], ['d1', 'y2', { label: '工单' }], ['d3', 'd4', { label: '来电量预测' }]
+        ['d1', 'k1'], ['k1', 'p2'], ['p2', 't1', { fp: 'train' }], ['t1', 'm1'], ['m1', 'e1'], ['p2', 'e1', { fp: 'test', tp: 'test' }],
+        ['m1', 'f1'], ['d2', 'f1', { tp: 'in' }], ['f1', 'r1'], ['r1', 'g1', { fp: 'yes' }],
+        ['k1', 't2'], ['t2', 'm2'], ['m2', 'f2'], ['d2', 'f2', { tp: 'in' }], ['f2', 'h1'],
+        ['d3', 'a1'], ['a1', 'a2'], ['a2', 'x1']
       ],
       steps: [
-        { say: '一个家电品牌的客服中心（虚构）：电话 + APP，拆成 4 个环节。客服是几乎每家公司都有的部门。', show: ['S1', 'S2', 'S3', 'S4'] },
-        { say: '接入：电话进呼叫中心平台，语音识别把通话实时转成文字——后面所有 AI 都靠这份文字。', show: ['a1', 'a2', 'a3'], sel: 'a3' },
-        { say: '大模型听第一句话判断来意：查物流、报修、还是投诉？分给机器人或人工。', show: ['a4'], sel: 'a4' },
-        { say: '机器人自助：知识库问答先翻产品手册和保修政策再回答，答案带出处，不瞎编。', show: ['b1'], sel: 'b1' },
-        { say: '智能体（Agent）能动手：查订单、约上门维修。能动手就可能动错，所以只给查询和预约的权限。', show: ['b2', 'b3'], sel: 'b2' },
-        { say: '人工坐席：AI 不替人，而是帮人——实时推荐话术、听出客户情绪；200 元以下的退款由规则引擎直接批。', show: ['c1', 'c2', 'c3', 'c4', 'c5'], sel: 'c4' },
-        { say: '事后分析：每通电话自动写摘要、填工单；100% 质检；预测下周来电量，再用优化算法排班。', show: ['d1', 'd2', 'd3', 'd4'], sel: 'd1' },
-        { say: '数据：通话录音里有姓名、地址、电话——敏感，存本地；产品手册本来就公开。', show: ['y1', 'y2', 'y3'], sel: 'y1' },
-        { say: '统计：4 个环节全用上了 AI，一共 11 个 AI 步骤，其中大模型 4 个——客服是大模型落地最快的地方。', tab: 'stats' },
-        { say: '四格图：通话转文字、摘要填工单、退款规则「先做」；知识库问答、智能体价值高但要花功夫，「规划」；情绪识别「顺手做」。', tab: 'quad' },
-        { say: '标红：通话录音被直接送进了公有云上的语音识别。录音一出公司，就收不回来了。', tab: 'stats', sel: 'e:y1>a3' },
-        { say: '改法：语音识别改成本地部署，录音不出公司。改完，红点消失。', tab: 'stats', sel: 'a3',
-          fix: function (doc, id) { M.get(doc, id('a3')).loc = 'local'; } },
-        { say: '导出 Markdown 清单：客服中心的 AI 方案初稿就有了。', tab: 'list' }
+        { say: '一个家电品牌的客服中心（虚构）。这次做两件机器学习的事：预测哪些客户下个月会走（要答案），把客户分群（不要答案）。外加通话录音转文字。', show: ['K1', 'K2', 'K3', 'K4'] },
+        { say: '「客户档案」里有姓名、手机号（敏感），最后一列「是否流失」是答案。训练用不着姓名和手机号，第一步就「脱敏」把它们去掉。', show: ['d1', 'k1'], sel: 'k1' },
+        { say: '有答案，就做监督学习：拆分 → 训练（逻辑回归：分「会走 / 不会走」两类，给出把握）→ 模型 → 评估。', show: ['p2', 't1', 'm1', 'e1'], sel: 't1' },
+        { say: '运行看评估：准确率要和「全猜不会走」比。客户里本来多数不会走，瞎猜也有七成多，模型要比这个高才有用。', show: [], sel: 'e1', tab: 'run', run: true },
+        { say: '每月拿「本月客户」+ 同一个模型预测：谁可能会走。规则筛出来，交给客户经理打电话回访。这次姓名、手机号留着：回访要用，而且全程在私有云里。', show: ['d2', 'f1', 'r1', 'g1'], sel: 'r1', tab: 'run', run: true },
+        { say: '同一份数据，换一种问法：不看答案，让 K-means 按行为把客户自动分成 3 群。这叫无监督学习，不需要标签。', show: ['t2', 'm2'], sel: 't2', tab: 'props' },
+        { say: '分群模型也一样反复用：本月客户进来，每人分到一群。右边能看到每一群的平均会员月数、来电次数，运营据此定策略。', show: ['f2', 'h1'], sel: 'f2', tab: 'run', run: true },
+        { say: '通话录音（敏感：有声音、有个人信息）直接送进了公有云的语音转文字服务。标红。', show: ['d3', 'a1', 'a2', 'x1'], sel: 'e:d3>a1', tab: 'check' },
+        { say: '改法：语音识别改成本地部署，录音不出公司。后面的大模型在私有云里读文字，不受影响。红点消失。', show: [], sel: 'a1', tab: 'check', fix: function (doc, id) { M.get(doc, id('a1')).loc = 'local'; } },
+        { say: '四格图和清单：哪些先做，每个节点的输入输出。想动手改：文件 ▾ → 把这个示例复制到「我来画」。', show: [], tab: 'quad' },
+        { say: '清单按连线顺序列出全部节点，附运行结果。', show: [], tab: 'list' }
       ]
     }
   ];
 
-  var COL_GAP = 72, ROW_GAP = 96, ITEM_GAP = 16;
-
-  /** 搭出示例蓝图；返回 { doc, ids: { 键: 方框 / 连线 id } }。连线的键是 'e:起点>终点'。 */
+  /** 按示例搭出一张节点图，并排好位置。返回 { doc, ids: { k: 节点 id, 'e:a>b': 连线 id } }。 */
   function build(sample) {
-    var doc = M.create(sample.title), ids = {}, x = 0, bottom = 0;
+    var doc = M.create(sample.title), ids = {}, stageOf = {};
     sample.stages.forEach(function (st) {
-      var s = M.addNode(doc, 'stage', x, 0, { name: st.name, desc: st.desc || '' }); ids[st.k] = s.id;
-      var y = C.HEAD + 10;
+      var s = M.addNode(doc, 'stage', 0, 0, { name: st.name, desc: st.desc || '' }); ids[st.k] = s.id;
       st.items.forEach(function (it) {
-        var props = {}; for (var k in it) if (k !== 'k' && k !== 'type') props[k] = it[k];
-        var n = M.addNode(doc, it.type, x + C.PAD, y, props); n.parent = s.id; ids[it.k] = n.id; y += n.h + ITEM_GAP;
+        var props = {}; for (var key in it) if (key !== 'k' && key !== 'type') props[key] = it[key];
+        if (typeof props.csv === 'string' && props.csv.charAt(0) === '@') props.csv = D.get(props.csv.slice(1));
+        var n = M.addNode(doc, it.type, 0, 0, props); n.parent = s.id; ids[it.k] = n.id; stageOf[it.k] = st.k;
       });
-      M.fitStages(doc);
-      x = s.x + s.w + COL_GAP; bottom = Math.max(bottom, s.y + s.h);
-    });
-    var totalW = x - COL_GAP, nd = sample.data.length, dw = C.TYPES.data.w, gap = Math.max(40, (totalW - nd * dw) / Math.max(1, nd - 1));
-    var startX = nd > 1 ? 0 : (totalW - dw) / 2;
-    if (nd > 1 && gap > 220) { gap = 220; startX = (totalW - (nd * dw + (nd - 1) * gap)) / 2; }
-    sample.data.forEach(function (it, i) {
-      var props = {}; for (var k in it) if (k !== 'k' && k !== 'type') props[k] = it[k];
-      var n = M.addNode(doc, 'data', Math.round(startX + i * (dw + gap)), bottom + ROW_GAP, props); ids[it.k] = n.id;
     });
     sample.edges.forEach(function (e) {
-      var props = {}; if (e[2]) for (var k in e[2]) props[k] = e[2][k];
-      var made = M.addEdge(doc, ids[e[0]], ids[e[1]], props);
-      if (!made) throw new Error('示例连线有误：' + e[0] + ' → ' + e[1]);
-      ids['e:' + e[0] + '>' + e[1]] = made.id;
+      var o = e[2] || {}, r = M.connect(doc, ids[e[0]], ids[e[1]], o.fp || null, { label: o.label || '', masked: !!o.masked }, o.tp || null);
+      if (r.err) throw new Error(sample.short + '：' + e[0] + ' → ' + e[1] + ' 连不上：' + r.err);
+      ids['e:' + e[0] + '>' + e[1]] = r.edge.id;
+    });
+    // 排版：每个环节先在原点排好，再按 rows 放到位
+    var y = 0;
+    sample.rows.forEach(function (row) {
+      var x = 0, rowH = 0;
+      row.forEach(function (k) {
+        var s = M.get(doc, ids[k]); M.moveTo(doc, s.id, 0, 0); M.arrange(doc, s.id);
+        M.moveBy(doc, s.id, x - s.x, y - s.y); M.fitStages(doc);
+        x = s.x + s.w + 70; rowH = Math.max(rowH, s.h);
+      });
+      y += rowH + 70;
     });
     return { doc: doc, ids: ids };
   }
