@@ -156,8 +156,8 @@
           return { status: 'ok', summary: '刚训练好：' + summarizeModel(v.m), model: v.m, outs: { out: v } };
         case 'evaluate':
           if ((miss = need(id, ['model', 'test']))) return miss;
-          var rep = ML.evaluate(input(id, 'model').m, input(id, 'test').ds);
-          return { status: 'ok', summary: summarizeMetric(rep), metric: rep, outs: { out: { t: 'metric', r: rep } } };
+          var em = input(id, 'model').m, rep = ML.evaluate(em, input(id, 'test').ds);
+          return { status: 'ok', summary: summarizeMetric(rep), metric: rep, model: em, outs: { out: { t: 'metric', r: rep } } };
         case 'predict':
           if ((miss = need(id, ['model', 'in']))) return miss;
           var pm = input(id, 'model').m, pin = input(id, 'in').ds, lack = ML.missingFields(pm, pin);

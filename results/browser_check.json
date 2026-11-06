@@ -1,10 +1,10 @@
 {
   "tool": "tools/browser_check.js",
-  "browser": "Chromium 153.0.8010.12（Playwright，无头）",
-  "date": "2026-11-05",
+  "browser": "chrome 156.0.8078.80（Playwright，无头）",
+  "date": "2026-11-06",
   "selftest": {
     "ok": true,
-    "checks": 33,
+    "checks": 30,
     "failed": []
   },
   "sizes": [
@@ -15,7 +15,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -28,9 +28,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -38,29 +43,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "0.91 → 3.00"
+          "detail": "0.28 → 1.14"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -68,7 +73,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -93,9 +108,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -111,7 +126,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -124,9 +139,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -134,29 +154,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "0.91 → 3.00"
+          "detail": "0.28 → 1.14"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -164,7 +184,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -189,9 +219,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -207,7 +237,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -220,9 +250,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -230,29 +265,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "0.84 → 3.00"
+          "detail": "0.26 → 1.04"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -260,7 +295,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -285,9 +330,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -303,7 +348,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -316,9 +361,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -326,29 +376,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "0.84 → 3.00"
+          "detail": "0.26 → 1.04"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -356,7 +406,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -381,9 +441,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -399,7 +459,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -412,9 +472,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -422,29 +487,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.57 → 2.27"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -452,7 +517,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -477,9 +552,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -495,7 +570,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -508,9 +583,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -518,29 +598,29 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.57 → 2.27"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
-        },
-        {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
-          "ok": true,
-          "detail": "0"
+          "detail": "forest / high"
         },
         {
           "name": "全屏面板：可点区域 ≥ 44px",
@@ -548,7 +628,17 @@
           "detail": "44px「观看」"
         },
         {
+          "name": "运行：导入示例数据后训练出模型",
+          "ok": true,
+          "detail": "[\"ok\",\"ok\"]"
+        },
+        {
           "name": "画布页：可点区域 ≥ 44px",
+          "ok": true,
+          "detail": "44px「观看」"
+        },
+        {
+          "name": "节点库：可点区域 ≥ 44px",
           "ok": true,
           "detail": "44px「观看」"
         },
@@ -573,9 +663,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -591,7 +681,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -604,9 +694,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -614,29 +709,34 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.50 → 2.02"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
+          "detail": "forest / high"
         },
         {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "name": "运行：导入示例数据后训练出模型",
           "ok": true,
-          "detail": "0"
+          "detail": "[\"ok\",\"ok\"]"
         },
         {
           "name": "练习：没有横向溢出、整页不滚动",
@@ -644,9 +744,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -662,7 +762,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -675,9 +775,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -685,29 +790,34 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.50 → 2.02"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
+          "detail": "forest / high"
         },
         {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "name": "运行：导入示例数据后训练出模型",
           "ok": true,
-          "detail": "0"
+          "detail": "[\"ok\",\"ok\"]"
         },
         {
           "name": "练习：没有横向溢出、整页不滚动",
@@ -715,9 +825,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -733,7 +843,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -746,9 +856,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -756,29 +871,34 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.79 → 3.00"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
+          "detail": "forest / high"
         },
         {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "name": "运行：导入示例数据后训练出模型",
           "ok": true,
-          "detail": "0"
+          "detail": "[\"ok\",\"ok\"]"
         },
         {
           "name": "练习：没有横向溢出、整页不滚动",
@@ -786,9 +906,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -804,7 +924,7 @@
         {
           "name": "默认打开观看模式并自动播放",
           "ok": true,
-          "detail": "{\"idx\":0,\"step\":0,\"steps\":14,\"playing\":true}"
+          "detail": "{\"idx\":0,\"step\":0,\"steps\":16,\"playing\":true}"
         },
         {
           "name": "观看：没有横向溢出",
@@ -817,9 +937,14 @@
           "detail": "2"
         },
         {
-          "name": "加方框：选中环节时放进环节里",
+          "name": "观看：讲到评估时真的运行，算出 R²",
           "ok": true,
-          "detail": "4 个，环节里 2"
+          "detail": ""
+        },
+        {
+          "name": "节点库：选中节点时，新节点自动接在后面",
+          "ok": true,
+          "detail": "[{\"id\":\"e3\",\"from\":\"n1\",\"fp\":\"out\",\"to\":\"n2\",\"tp\":\"in\",\"label\":\"\",\"masked\":false,\"fb\":false}]"
         },
         {
           "name": "我来画：没有横向溢出、整页不滚动",
@@ -827,29 +952,34 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "连线模式：先后点两个方框连出一条线",
+          "name": "拖线：从输出口拖到输入口连上",
           "ok": true,
-          "detail": "[{\"id\":\"e5\",\"from\":\"n4\",\"to\":\"n2\",\"kind\":\"data\",\"label\":\"\",\"masked\":false}]"
+          "detail": "[\"out>in\",\"train>in\"]"
         },
         {
-          "name": "拖动：把方框拖进环节变成小步骤",
+          "name": "连线模式：先后点两个节点，自动挑口连上",
           "ok": true,
-          "detail": "n1"
+          "detail": "3"
+        },
+        {
+          "name": "拖动：把节点拖进业务环节",
+          "ok": true,
+          "detail": "n8"
         },
         {
           "name": "双指缩放",
           "ok": true,
-          "detail": "1.10 → 3.00"
+          "detail": "0.79 → 3.00"
         },
         {
-          "name": "属性：选 AI 类型、打价值分",
+          "name": "属性：选算法、打价值分",
           "ok": true,
-          "detail": "llm / high"
+          "detail": "forest / high"
         },
         {
-          "name": "红黄规则：「内部」数据连到公有云 AI 不标红",
+          "name": "运行：导入示例数据后训练出模型",
           "ok": true,
-          "detail": "0"
+          "detail": "[\"ok\",\"ok\"]"
         },
         {
           "name": "练习：没有横向溢出、整页不滚动",
@@ -857,9 +987,9 @@
           "detail": "{\"x\":0,\"y\":0}"
         },
         {
-          "name": "练习：9 项任务",
+          "name": "练习：10 项任务",
           "ok": true,
-          "detail": "9"
+          "detail": "10"
         },
         {
           "name": "没有 JS 报错",
@@ -872,12 +1002,12 @@
   "shots": [
     "01-watch-1920x1080.png",
     "02-draw-1920x1080-dark.png",
-    "03-stats-1366x768.png",
-    "04-quad-1366x768-dark.png",
+    "03-run-1366x768.png",
+    "04-check-1366x768-dark.png",
     "05-practice-1366x768.png",
     "06-mobile-watch-390x844.png",
     "07-mobile-draw-390x844-dark.png",
-    "08-mobile-quad-390x844.png",
+    "08-mobile-run-390x844.png",
     "09-tablet-768x1024.png",
     "10-tablet-768x1024-dark.png"
   ],

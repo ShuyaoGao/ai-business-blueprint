@@ -12,6 +12,6 @@ window.CREDITS = {
   "APP_NAME_ZH": "AI 业务拆解画板",
   "APP_NAME_EN": "AI Business Blueprint",
   "YEAR": "2026",
-  "VERSION": "1.0",
-  "RELEASE_DATE": "2026-11-05"
+  "VERSION": "2.0",
+  "RELEASE_DATE": "2026-11-06"
 };
